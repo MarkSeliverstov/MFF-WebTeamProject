@@ -1,5 +1,23 @@
 # Specification for project
 
+The objective is to implement a Web crawler with a web-based interface.
+
+## Site management
+
+The application should allow a user to keep track of website records to crawl. For each website record the user can specify:
+- URL - where the crawler should start.
+- Boundary RegExp - when the crawler found a link, the link must match this expression in order to be followed. User is required to provide value for this.
+Periodicity (minute, hour, day) - how often should the site be crawled.
+- Label - user given label.
+- Active / Inactive - if inactive, the site is not crawled based on the Periodicity.
+- Tags - user given strings.
+
+The application should implement common CRUD operation. The user can see website records in a paginated view. The view can be filtered using URL, Label, and/or Tags. The view can be sorted based on the URL or the last time a site was crawled. The view must contain Label, Periodicity, Tags, time of last execution, the status of last execution.
+
+## Execution management
+
+Each active website record is executed based on the periodicity. Each execution creates a new execution. For example, if the Periodicity is an hour, the executor tries to crawl the site every hour ~ last execution time + 60 minutes. You may use start of the last execution or end of the last execution. While doing the first may not be safe, id does not matter here. If there is no execution for a given record and the record is active the crawling is started as soon as possible, this should be implemented using some sort of a queue. A user can list all the executions, or filter all executions for a single website record. In both cases, the list must be paginated. The list must contain website record's label, execution status, start/end time, number of sites crawled. A user can manually start an execution for a given website record. When a website records is deleted all executions and relevant data are removed as well.Â
+
 ## Executor
 
 The executor is responsible for executing, i.e. crawling selected websites. Crawler downloads the website and looks for all hyperlinks. For each detected hyperlink that matches the website record Boundary RegExp the crawler also crawls the given page. For each crawled website it creates a record with the following data:
