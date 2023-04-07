@@ -9,6 +9,7 @@ For deployment run:
 ```shell
 docker compose --file docker-compose-deploy.yaml up -d
 ```
+**Then running at localhost:5001**
 
 TODO?: setup GitHub Actions with formatting/type checking
 
@@ -20,6 +21,7 @@ For development run:
 ```shell
 docker compose up -d
 ```
+**Running at: localhost:5000 and at localhost:8080 there is mongo-express running for graphical access to database**
 
 In case a new package is added rebuild is needed -> run:
 For development run:
