@@ -1,0 +1,33 @@
+version: '3.9'
+services:
+  app-deploy:
+    build:
+      context: .
+      dockerfile: Dockerfile-deploy
+      target: deploy
+    ports: 
+      - 5001:3000
+  mongodb:
+    image: mongo
+    ports:
+      - 27017:27017
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=password
+    volumes:
+      - mongo-data:/data/db
+
+  mongo-express:
+    image: mongo-express
+    ports:
+      - 8080:8081
+    environment:
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=root
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=password
+      - ME_CONFIG_MONGODB_SERVER=mongodb
+    restart: always
+    depends_on:
+      - mongodb
+volumes:
+  mongo-data:
+    driver: local
