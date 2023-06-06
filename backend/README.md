@@ -1,0 +1,37 @@
+# Crawler backend
+
+**How to get data from the web?**
+1. Fetch data from the web and parse it
+2. Create a browser and navigate to the page
+
+We will use the second approach because almost all sites are dynamic and require javascript to render the page. And also on almost every site, there is some kind of anti-bot protection, which can be bypassed by using a real browser.
+
+We recognize to use [Puppeteer](https://pptr.dev/) for this. Puppeteer is a Node library that provides a high-level API to control Chrome or Chromium over the DevTools Protocol. Puppeteer runs headless by default, but can be configured to run full (non-headless) Chrome or Chromium.
+
+### Execution management
+
+- Each active website record is executed based on the periodicity. 
+- Each execution creates a new execution. 
+- For example, if the Periodicity is an hour, the executor tries to crawl the site every hour ~ last execution time + 60 minutes. 
+(We use the last execution time because the execution can take more than an hour, and we don't want to start a new execution before the previous one is finished.)
+- If there is no execution for a given record and the record is active the crawling is started as soon as possible, this is implemented **using some sort of a queue**. 
+- A user can list all the executions, or filter all executions for a single website record. 
+- In both cases, the list is paginated. 
+- The list must contain the website record's *label*, execution *status*, *start/end* time, and _number_ of sites crawled. 
+- A user can **manually start** an execution for a given website record. 
+- When a website record is deleted all executions and relevant data are removed as well.
+
+### Executor (Crawling)
+
+The executor is responsible for executing, i.e. crawling selected websites. 
+Crawler downloads the website and looks for all hyperlinks. 
+For each detected hyperlink that matches the website record Boundary RegExp, the crawler also crawls the given pages. 
+For each crawled website it creates a record with the following data:
+- URL
+- Crawl time
+- Title - page title
+- Links - List of outgoing links
+
+Crawled data are stored as a part of the website record, so the old data are lost once the new execution is successfully finished. It must be possible to run multiple executions at once.
+
+We use threads to crawl multiple pages at the same time. We use node.js [worker_threads](https://nodejs.org/api/worker_threads.html) for this. 
