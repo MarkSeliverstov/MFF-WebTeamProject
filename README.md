@@ -11,7 +11,7 @@ In this project, we will focus on the following topics:
 We used the following technologies:
 
 - [Node.js](https://nodejs.org/en/), [Express.js](https://expressjs.com/) with [MongoDB](https://www.mongodb.com/) for the backend
-- [Svelte-kit]() for the frontend
+- [Svelte-kit](https://kit.svelte.dev/) for the frontend
 - [Docker](https://www.docker.com/) for deployment
 
 
@@ -26,7 +26,7 @@ $ docker-compose up
 ## Architecture
 
 - backend: Node.js - express.js with threading support (crawlers)
-- frontend: Svelte
+- frontend: Svelte-kit
 - database: MongoDB
 
 ## Development
