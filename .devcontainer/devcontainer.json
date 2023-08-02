@@ -30,6 +30,7 @@
 		}
 	},
 	"postStartCommand": "git config --global --add safe.directory ${containerWorkspaceFolder}",
+	"postCreateCommand": "docker compose up -d",
 	"customizations": {
 		"vscode": {
 			"extensions": [
