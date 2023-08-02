@@ -1,39 +1,41 @@
-# Web Crawler for MFF-team-project
+# MFF-Web-TeamProject
 
-This is a web crawler for the Advanced Web Programming course at MFF UK. <br>
-The goal of this project is to create a [Web Crawler](https://cs.wikipedia.org/wiki/Web_crawler).
-In this project, we will focus on the following topics:
+## Deploy
 
-- Crawling
-- Indexing
-- Web UI
+Implemented but not properly tested. Mongo-Express should not be included in compose at all.
 
-We used the following technologies:
+For deployment run:
 
-- [Node.js](https://nodejs.org/en/), [Express.js](https://expressjs.com/) with [MongoDB](https://www.mongodb.com/) for the backend
-- [Svelte-kit](https://kit.svelte.dev/) for the frontend
-- [Docker](https://www.docker.com/) for deployment
-
-
-## How to start
-
-```bash
-$ git clone git@github.com:MarkSeliverstov/MFF-WebTeamProject.git
-$ cd MFF-WebTeamProject
-$ docker-compose up 
+```shell
+docker compose --file docker-compose-deploy.yaml up -d
 ```
+**Then running at localhost:5001**
 
-## Architecture
-
-- backend: Node.js - express.js with threading support (crawlers)
-- frontend: Svelte-kit
-- database: MongoDB
+TODO?: setup GitHub Actions with formatting/type checking
 
 ## Development
 
-To run a developing server, you need to have **Node.js** installed and then run:
+Should be working properly. Hot reload setup as well. But very probable I made a mistake somewhere(paths are always a pain).
 
-```bash
-$ cd backend && npm build && npm start
-$ cd frontend && npm dev
+For development run:
+```shell
+docker compose up -d
 ```
+**Running at: localhost:5000 and at localhost:8080 there is mongo-express running for graphical access to database**
+
+In case a new package is added rebuild is needed -> run:
+For development run:
+```shell
+docker compose build
+```
+It is probably a good idea to run this command after pulling from GitHub
+
+
+If you stop developing for the day run:
+For development run:
+```shell
+docker compose down
+```
+So you are not losing your computer resources :)
+
+

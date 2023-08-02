@@ -1,5 +1,5 @@
 .vscode
-README.md
+README*.md
 Specification.md
 Dockerfile*
 docker-compose*.yaml
