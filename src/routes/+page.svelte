@@ -1,6 +1,6 @@
 <script lang="ts">
 	//import NodeGraph from '../lib/components/GraphCanvas.svelte';
-    import Graph from '../lib/components/CytoscapeGraph.svelte';
+    import Graph from '$components/CytoscapeGraph.svelte';
     import {graphData} from '../lib/graphDataStore';
 	import type { SimulationLinkDatum } from 'd3-force';
 	import type { CrawledWebPage } from '../types';
