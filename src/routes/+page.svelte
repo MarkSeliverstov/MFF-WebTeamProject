@@ -1,2 +1,44 @@
-<h1>Welcome to SvelteKit</h1>
-<p>Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation</p>
+<script lang="ts">
+	//import NodeGraph from '../lib/components/GraphCanvas.svelte';
+    import Graph from '../lib/components/CytoscapeGraph.svelte';
+    import {graphData} from '../lib/graphDataStore';
+	import type { SimulationLinkDatum } from 'd3-force';
+	import type { CrawledWebPage } from '../types';
+    	
+    // process data for further usage
+    import dataJSON from '../lib/result.json';
+	import { page } from '$app/stores';
+	const nodesJSON: CrawledWebPage[] = dataJSON as CrawledWebPage[];
+    const nodes: {data: {id: string, status: string, title: string | undefined, crawlTimeStart: number | undefined, crawlTimeEnd: number | undefined}}[] = [];
+	const edges: {data: {source: string, target: string}}[] = [];
+    
+	// create links (edges) between nodes representing the crawling results
+	nodesJSON.forEach((sourceNode) => {
+        const node = {
+            data: {
+            id: sourceNode.url,
+            status: sourceNode.status,
+            title: sourceNode.title,
+            crawlTimeStart: sourceNode.crawlTimeStart,
+            crawlTimeEnd: sourceNode.crawlTimeEnd
+            }
+        };
+
+        nodes.push(node);
+
+		sourceNode.links.forEach((targetUrl) => {
+            const edge = {
+                data: {
+                    source: sourceNode.url,
+                    target: targetUrl
+                }
+            };			
+            edges.push(edge);        
+		});
+
+	});
+
+    $: graphData.set({nodes, edges});
+</script>
+
+<Graph />
