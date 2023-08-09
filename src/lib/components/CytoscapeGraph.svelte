@@ -1,9 +1,11 @@
 <script lang="ts">
 	import cytoscape from 'cytoscape';
+    import popper from 'cytoscape-popper';
     import { graphData } from '../graphDataStore';
 	import { onMount } from 'svelte';
 
 	let isMounted = false;
+    cytoscape.use( popper );
     
 	onMount(() => {
         isMounted = true;
@@ -34,8 +36,26 @@
             .update();
 
             cy.on('click', 'node', event => {
-                console.log('clicked', event.target.data().url);
-            });            
+                let node = event.target;
+                let popper = node.popper({
+                    content: () => {
+                        let div = document.createElement('div');
+                        div.innerHTML = 'mockup node text';
+                        document.body.appendChild( div );
+                        
+                        return div;
+                    }
+                });
+
+                let update = () => {
+                    popper.update();
+                };
+
+                node.on('position', update);
+                cy.on('pan zoom resize', update);       
+                //console.log('clicked', event.target.data().url);
+            })
+
 
             var layout = cy.layout({
                 name: 'cose',
