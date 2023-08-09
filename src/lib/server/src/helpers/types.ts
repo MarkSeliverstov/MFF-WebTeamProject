@@ -5,7 +5,7 @@ export interface crowlingWebPage {
 	crawlTimeStart?: number;
 	crawlTimeEnd?: number;
 	links: string[];
-	status: undefined | "success"  | "notValidUrl" |  "failed" 
+	status: "notYetCrawled" | "success"  | "notValidUrl" |  "failed" 
 }
 
 export interface CrawlerProgressCallback{

@@ -30,7 +30,7 @@ export class Crawler{
 		let currentCrawlingWebPage: crowlingWebPage | undefined = {
 			url: baseUrl.href,
 			links: [],
-			status: undefined
+			status: "notYetCrawled"
 		};
 
 		const pagesToCrawl: crowlingWebPage[] = [currentCrawlingWebPage];
@@ -88,7 +88,7 @@ export class Crawler{
 							pagesToCrawl.push({
 								url: link,
 								links: [],
-								status: undefined
+								status: "notYetCrawled"
 							});
 						}
 					}
