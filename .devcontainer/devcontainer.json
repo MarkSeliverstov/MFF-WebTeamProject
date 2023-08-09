@@ -28,7 +28,8 @@
 				"ecmel.vscode-html-css",
 				"esbenp.prettier-vscode",
 				"svelte.svelte-vscode",
-				"Gruntfuggly.todo-tree"
+				"Gruntfuggly.todo-tree",
+				"mongodb.mongodb-vscode"
 			]
 		}
 	},
