@@ -1,13 +1,10 @@
 <script lang="ts">
-	//import NodeGraph from '../lib/components/GraphCanvas.svelte';
     import Graph from '$components/CytoscapeGraph.svelte';
     import {graphData} from '../lib/graphDataStore';
-	import type { SimulationLinkDatum } from 'd3-force';
 	import type { CrawledWebPage } from '../types';
     	
     // process data for further usage
     import dataJSON from '../lib/result.json';
-	import { page } from '$app/stores';
 	const nodesJSON: CrawledWebPage[] = dataJSON as CrawledWebPage[];
     const nodes: {data: {id: string, status: string, title: string | undefined, crawlTimeStart: number | undefined, crawlTimeEnd: number | undefined}}[] = [];
 	const edges: {data: {source: string, target: string}}[] = [];
