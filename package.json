@@ -14,8 +14,9 @@
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-auto": "^2.0.0",
-		"@sveltejs/adapter-node": "^1.2.3",
-		"@sveltejs/kit": "^1.5.0",
+		"@sveltejs/kit": "^1.22.4",
+		"@types/cytoscape": "^3.19.10",
+		"@types/cytoscape-popper": "^2.0.0",
 		"@typescript-eslint/eslint-plugin": "^5.45.0",
 		"@typescript-eslint/parser": "^5.45.0",
 		"eslint": "^8.28.0",
@@ -32,7 +33,11 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"@sveltejs/adapter-node": "^1.0.0-next.106",
+		"cytoscape": "^3.2.0",
+		"cytoscape-popper": "^2.0.0",
 		"graphql": "^16.7.1",
-		"graphql-yoga": "^4.0.3"
+		"graphql-yoga": "^4.0.3",
+		"mongodb": "5.7"
 	}
 }
