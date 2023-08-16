@@ -5,10 +5,7 @@
 
 <div id="nodeDetail">
     <button on:click={onClose} id="nodeDetailClose">X</button>
-    <h5>{node.id}</h5>
-    {#if node.title}
-    <h5>Title: {node.title}</h5>
-    {/if}
+    <h5>{node.id}</h5>    
     <h5>Status: {node.status}</h5>
     {#if node.crawlTimeEnd && node.crawlTimeStart}
     <h5>Crawl time: {(node.crawlTimeEnd-node.crawlTimeStart).toString()} seconds</h5>
