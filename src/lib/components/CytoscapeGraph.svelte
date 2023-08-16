@@ -1,22 +1,19 @@
 <script lang="ts">
 	import cytoscape from 'cytoscape';
-	import { graphData } from '$lib/graphDataStore';
+	import { websiteGraphData, domainGraphData, viewModeStore } from '$lib/graphDataStore';
 	import { onMount } from 'svelte';
-	import NodeDetail from './nodeDetail.svelte';
+	import NodeDetail from './NodeDetail.svelte';
 
-	let isMounted = false;	
 	onMount(() => {
-		isMounted = true;
-
 		// check if the graph data is available
-		if ($graphData.nodes.length && $graphData.edges.length) {
+		if ($websiteGraphData.nodes.length && $websiteGraphData.edges.length) {
 			var cy = cytoscape({
 				container: document.getElementById('cytoscape')
 			});
 
 			cy.add({
-				nodes: $graphData.nodes,
-				edges: $graphData.edges
+				nodes: $websiteGraphData.nodes,
+				edges: $websiteGraphData.edges
 			});
 
 			cy.minZoom(0.2);
@@ -34,11 +31,11 @@
 				.style({
 					width: '90px',
 					height: '90px',
-					"border-color": "black",
+					'border-color': 'black',
 					'border-width': '10px',
-					"font-weight": 'bold',
+					'font-weight': 'bold',
 					'font-size': 20,
-					'text-transform': 'uppercase' ,
+					'text-transform': 'uppercase',
 					'text-background-color': 'white',
 					'text-background-opacity': 1,
 					'text-background-shape': 'roundrectangle',
@@ -46,7 +43,7 @@
 					'text-border-color': 'black',
 					'text-border-width': 5,
 					'text-background-padding': '5px',
-					'z-index': 5,
+					'z-index': 5
 				})
 				.selector('edge')
 				.style({
@@ -59,7 +56,7 @@
 				.update();
 
 			cy.on('dblclick', 'node', (event) => showNodeDetail(event, cy));
-			
+
 			var layout = cy.layout({
 				name: 'cose',
 				animate: false,
@@ -73,8 +70,44 @@
 					return 256;
 				}
 			});
-			
+
 			layout.run();
+
+			console.log($domainGraphData);
+			viewModeStore.subscribe((viewMode) => {
+				cy.elements().remove();
+
+				if (viewMode) {
+					cy.add({
+						nodes: $websiteGraphData.nodes,
+						edges: $websiteGraphData.edges
+					});
+
+					cy.layout({
+						name: 'cose',
+						animate: false,
+						nodeRepulsion(node) {
+							return 50000000;
+						},
+						idealEdgeLength(edge) {
+							return 512;
+						},
+						edgeElasticity(edge) {
+							return 256;
+						}
+					}).run();
+				} else {
+					cy.add({
+						nodes: $domainGraphData.nodes,
+						edges: $domainGraphData.edges
+					});
+
+					cy.layout({
+						name: 'grid',
+						animate: false
+					}).run();
+				}
+			});
 		}
 	});
 
@@ -95,7 +128,7 @@
 			},
 			zoom: 0.75
 		});
-		
+
 		//add a style class to the clicked node
 		event.target.addClass('detailedView');
 
@@ -115,15 +148,14 @@
 
 		detail.addEventListener('mouseover', () => {
 			cy.userPanningEnabled(false);
-			cy.userZoomingEnabled(false);			
+			cy.userZoomingEnabled(false);
 		});
 
 		detail.addEventListener('mouseout', () => {
 			cy.userPanningEnabled(true);
-			cy.userZoomingEnabled(true);	
-		})
-
-	}	
+			cy.userZoomingEnabled(true);
+		});
+	}
 
 	// function passed to the button on node detail; handles closing
 	function nodeDetailOnClose(cy: cytoscape.Core, node: cytoscape.NodeSingular) {

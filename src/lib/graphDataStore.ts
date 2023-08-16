@@ -1,6 +1,6 @@
 import {writable} from 'svelte/store';
 
-export const graphData = writable<{ 
+export const websiteGraphData = writable<{ 
     nodes: {
         data: {
             id: string, 
@@ -18,3 +18,19 @@ export const graphData = writable<{
             }}[]
 
 }>({ nodes: [], edges: [] });
+
+export const domainGraphData = writable<{
+    nodes: { 
+        data: { 
+            id: string; 
+            links: string[]; 
+        }; }[], 
+
+    edges: {
+        data: {
+            source: string, 
+            target: string
+        }}[]
+}>({ nodes: [], edges: []})
+
+export const viewModeStore = writable(true);
