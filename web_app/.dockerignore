@@ -1,11 +1,7 @@
 .vscode
-README*.md
-Specification.md
 Dockerfile*
-docker-compose*.yaml
 .git*
 node_modules
 .eslint*
 .prettier*
-.devcontainer
 .svelte.kit

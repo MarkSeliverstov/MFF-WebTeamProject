@@ -2,7 +2,7 @@ version: '3.9'
 services:
   app-deploy:
     build:
-      context: .
+      context: ./web_app
       dockerfile: Dockerfile-deploy
       target: deploy
     ports: 
@@ -14,8 +14,10 @@ services:
     environment:
       - MONGO_INITDB_ROOT_USERNAME=root
       - MONGO_INITDB_ROOT_PASSWORD=password
+      - MONGO_INITDB_DATABASE=admin
     volumes:
       - mongo-data:/data/db
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
 
   mongo-express:
     image: mongo-express
