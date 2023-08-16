@@ -1,6 +1,5 @@
 <script lang="ts">
 	import cytoscape from 'cytoscape';
-	import fcose from 'cytoscape-fcose';
 	import { graphData } from '$lib/graphDataStore';
 	import { onMount } from 'svelte';
 	import NodeDetail from './nodeDetail.svelte';
@@ -9,7 +8,6 @@
 	onMount(() => {
 		isMounted = true;
 
-		cytoscape.use(fcose);
 		// check if the graph data is available
 		if ($graphData.nodes.length && $graphData.edges.length) {
 			var cy = cytoscape({
@@ -61,8 +59,7 @@
 				.update();
 
 			cy.on('dblclick', 'node', (event) => showNodeDetail(event, cy));
-
-			/*
+			
 			var layout = cy.layout({
 				name: 'cose',
 				animate: false,
@@ -76,19 +73,7 @@
 					return 256;
 				}
 			});
-			*/
-
-			var layout = cy.layout({
-				name: 'fcose',
-				quality: "proof",
-				randomize: false,
-				animate: false,
-				nodeDimensionsIncludeLabels: true,
-				nodeRepulsion: node => 50000000,
-				idealEdgeLength: edge => 512,
-				edgeElasticity: edge => 256
-			});
-
+			
 			layout.run();
 		}
 	});
@@ -124,9 +109,23 @@
 				onClose: () => nodeDetailOnClose(cy, event.target)
 			}
 		});
+
+		//prevent input from affecting the graph underneath the node detail
+		const detail = document.getElementById('nodeDetail')!;
+
+		detail.addEventListener('mouseover', () => {
+			cy.userPanningEnabled(false);
+			cy.userZoomingEnabled(false);			
+		});
+
+		detail.addEventListener('mouseout', () => {
+			cy.userPanningEnabled(true);
+			cy.userZoomingEnabled(true);	
+		})
+
 	}	
 
-	// function passed to the button on node detail; used to close it
+	// function passed to the button on node detail; handles closing
 	function nodeDetailOnClose(cy: cytoscape.Core, node: cytoscape.NodeSingular) {
 		const tooltip = document.getElementById('nodeDetail');
 		tooltip?.parentElement?.removeChild(tooltip);
@@ -137,6 +136,10 @@
 			}
 		});
 		node.removeClass('detailedView');
+
+		// without this, the user pan&zoom may stay disabled after closing the detail
+		cy.userPanningEnabled(true);
+		cy.userZoomingEnabled(true);
 	}
 
 	function getColorForStatus(status: string): string {

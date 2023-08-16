@@ -27,14 +27,14 @@
 <style>
     #nodeDetail {
             position: fixed;
-            z-index: 5;
+            z-index: 100;
             right: 0;
             top: 0;
             height: 100vh;
             width: 20vw;
             background-color: white;
             border: 1px solid #ccc;
-            padding: 10px;        
+            padding: 10px;                   
         }
     #nodeDetail ul {
         overflow: scroll;
