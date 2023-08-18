@@ -1,6 +1,6 @@
 <script lang="ts">
 	import cytoscape from 'cytoscape';
-	import { websiteGraphData, domainGraphData, viewModeStore } from '$lib/graphDataStore';
+	import { websiteGraphData } from '$lib/graphDataStore';
 	import { onMount } from 'svelte';
 	import NodeDetail from './NodeDetail.svelte';
 
@@ -71,43 +71,7 @@
 				}
 			});
 
-			layout.run();
-
-			console.log($domainGraphData);
-			viewModeStore.subscribe((viewMode) => {
-				cy.elements().remove();
-
-				if (viewMode) {
-					cy.add({
-						nodes: $websiteGraphData.nodes,
-						edges: $websiteGraphData.edges
-					});
-
-					cy.layout({
-						name: 'cose',
-						animate: false,
-						nodeRepulsion(node) {
-							return 50000000;
-						},
-						idealEdgeLength(edge) {
-							return 512;
-						},
-						edgeElasticity(edge) {
-							return 256;
-						}
-					}).run();
-				} else {
-					cy.add({
-						nodes: $domainGraphData.nodes,
-						edges: $domainGraphData.edges
-					});
-
-					cy.layout({
-						name: 'grid',
-						animate: false
-					}).run();
-				}
-			});
+			layout.run();			
 		}
 	});
 

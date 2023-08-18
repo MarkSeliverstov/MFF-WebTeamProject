@@ -1,7 +1,8 @@
 <script lang="ts">
-	import Graph from '$components/CytoscapeGraph.svelte';
+	import WebsiteGraph from '$components/WebsiteGraph.svelte';
+	import DomainGraph from '$components/DomainGraph.svelte';
 	import ViewModeButton from '$components/ViewModeButton.svelte';
-	import { domainGraphData, websiteGraphData } from '$lib/graphDataStore';
+	import { domainGraphData, websiteGraphData, viewModeStore } from '$lib/graphDataStore';
 	import type { CrawledWebPage } from '../types';
 
 	// process data for further usage
@@ -58,19 +59,15 @@
 		websiteNodes.push(websiteNode);
 
 		let matches = sourceNode.url.match(/^https?\:\/\/([^\/:?#]+)(?:[\/:?#]|$)/i)!;
-		let domain = matches && matches[1];
-
-		const domainNode = {
-			data: {
-				id: domain,
-				links: [] as any[]
-			}
-		};
+		let domain = matches && matches[1];	
+		let uniqueLinks = new Set<string>();	
 
 		sourceNode.links.forEach((targetUrl) => {
-			matches = targetUrl.match(/^https?\:\/\/([^\/:?#]+)(?:[\/:?#]|$)/i)!;
+
+			matches = targetUrl.match(/^https?\:\/\/([^\/:?#]+)(?:[\/:?#]|$)/i)!;			
 			let targetDomain = matches && matches[1];
-			domainNode.data.links.push(targetDomain);
+			uniqueLinks.add(targetDomain);
+
 			const websiteEdge = {
 				data: {
 					source: sourceNode.url,
@@ -88,6 +85,12 @@
 			domainEdges.add(domainEdge);
 		});
 
+		const domainNode = {
+			data: {
+				id: domain,
+				links: Array.from(uniqueLinks)
+			}
+		}
 		domainNodes.add(domainNode);
 	});
 	$: websiteGraphData.set({ nodes: websiteNodes, edges: websiteEdges });
@@ -96,4 +99,9 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <ViewModeButton />
-<Graph />
+
+{#if $viewModeStore}
+<WebsiteGraph />
+{:else}
+<DomainGraph />
+{/if}
