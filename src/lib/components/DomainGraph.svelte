@@ -22,7 +22,7 @@
 			cy.style()
 				.selector('node')
 				.style({
-					'background-color': (node) => getColorForStatus(node.data('status')),
+					'background-color': 'green',
 					width: '35px',
 					height: '35px',
 					label: 'data(id)'
