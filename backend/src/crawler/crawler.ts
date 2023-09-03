@@ -95,6 +95,8 @@ export class Crawler{
 
 			// If the current page is undefined, that means there are no more pages to crawl
 			if (this.currentCrawlingWebPage === undefined) break;
+
+			this.currentCrawlingWebPage.status = "inProgress";
 			this.seenPages.add(this.currentCrawlingWebPage.url);
 			this.updateCrawlingProgress(progressCallback);
 			
@@ -138,7 +140,7 @@ export class Crawler{
 			}
 		}
 
-		console.log(`(crawler ${process.pid}) Crawling finished, total pages crawled: ${this.crawledPages.length + this.pagesToCrawl.length}`);
+		console.log(`(crawler ${process.pid}) Crawling finished, total pages crawled: ${this.crawledPages.length}`);
 		return this.crawledPages;
 	}
 }
