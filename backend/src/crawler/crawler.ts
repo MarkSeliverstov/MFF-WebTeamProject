@@ -16,6 +16,7 @@ export class Crawler{
 	private crawledPages: crowlingWebPage[] = [];
 	// The current page being crawled
 	private currentCrawlingWebPage?: crowlingWebPage;	
+	private seenPages = new Set<string>;
 
 	// Function to fetch a page and return its text
 	private async fetchPage(url: string): Promise<string> {
@@ -94,7 +95,7 @@ export class Crawler{
 
 			// If the current page is undefined, that means there are no more pages to crawl
 			if (this.currentCrawlingWebPage === undefined) break;
-			
+			this.seenPages.add(this.currentCrawlingWebPage.url);
 			this.updateCrawlingProgress(progressCallback);
 			
 			// If the current page's URL doesn't match the regex, continue to the next iteration
@@ -120,7 +121,7 @@ export class Crawler{
 	
 					// Add the links to the pages to crawl from the crawled page
 					for (const link of this.currentCrawlingWebPage.links) {
-						if (!(link in this.crawledPages) && !this.pagesToCrawl.some(page => page.url === link)) {
+						if (!this.seenPages.has(link) && !this.pagesToCrawl.some(page => page.url === link)) {
 							this.pagesToCrawl.push(this.initCrawlingWebPage(link));
 						}
 					}
