@@ -6,7 +6,7 @@ export interface crowlingWebPage {
 	crawlTimeEnd?: number;
 	links: string[];
 	status: "pending" | "inProgress" | "success"  |  "failed"
-	failedRiason?: string
+	failedReason?: string
 }
 
 export interface CrawlerProgressCallback{
