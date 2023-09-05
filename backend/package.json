@@ -8,9 +8,9 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc -p ./tsconfig.json",
+    "build": "tsc -p ./tsconfig.json --es-module-specifier-resolution=node",
     "start": "node --enable-source-maps build/index.js",
-    "buildAndStart": "tsc -p ./tsconfig.json && node --enable-source-maps build/index.js",
+    "buildAndStart": "tsc -p ./tsconfig.json && node --es-module-specifier-resolution=node --enable-source-maps build/index.js",
     "lint": "eslint src --ext .ts --fix"
   },
   "devDependencies": {
