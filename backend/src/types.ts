@@ -26,8 +26,8 @@ export type CrowledWebPage = {
 	status: "pending" | "inProgress" | "failed" | "done"
 }
 
-export interface webPageExecution {
-	webPage: webPageClientConfig;
+export interface WebPageExecution {
+	webPage: WebPageClientConfig;
 	status: "success" | "queued" | "running" | "failed";
 	message?: string;
 	crawlTime: number;
@@ -35,7 +35,7 @@ export interface webPageExecution {
 	totalPageCount: number;
 }
 
-export interface webPageClientConfig {
+export interface WebPageClientConfig {
 	identifier: string;
 	/** user given label */
 	label: string;

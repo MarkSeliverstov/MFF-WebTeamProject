@@ -1,8 +1,8 @@
 import { Crawler } from "./crawler/crawler";
 import { runServer } from "./server";
-import { CrowledWebPage } from "./helpers/types";
-import { WorkerResponse, Progress } from "./crawler/worker";
-import { readFileSync, writeFileSync } from "fs";
+import { CrowledWebPage } from "./types";
+import { WorkerResponse, Progress } from "./worker";
+import { writeFileSync } from "fs";
 
 // The entry point in the backed of crawler
 async function Run(): Promise<void> {

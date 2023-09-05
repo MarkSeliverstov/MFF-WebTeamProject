@@ -3,8 +3,8 @@ import { URL } from "url";
 import axios from 'axios';
 
 
-import { CrowledWebPage } from "../helpers/types.js";
-import { WorkerProgress } from "./worker.js";
+import { CrowledWebPage } from "../types";
+import { WorkerProgress } from "../worker";
 
 
 export class Crawler{
