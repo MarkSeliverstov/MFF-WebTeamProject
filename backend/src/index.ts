@@ -1,6 +1,7 @@
-import { Crawler } from "./crawler/crawler.js";
-import { runServer } from "./server.js";
-import { crowlingWebPage, CrawlerProgressCallback } from "./helpers/types.js";
+import { Crawler } from "./crawler/crawler";
+import { runServer } from "./server";
+import { CrowledWebPage } from "./helpers/types";
+import { WorkerResponse, Progress } from "./crawler/worker";
 import { readFileSync, writeFileSync } from "fs";
 
 // The entry point in the backed of crawler
@@ -20,16 +21,21 @@ async function ManualCrawl(){
     console.log(`Manual crawling ${urlExample} starting...`);
 
     const crawler = new Crawler();
-    const result = await crawler.StartCrawling(urlExample, regexp, ProgressHandler);
+    const result = await crawler.StartCrawling(
+        urlExample, 
+        regexp, 
+        (progress) => {
+            const message: WorkerResponse = {
+                status: Progress.PROGRESS,
+                progress,
+            };
+            console.log(message.status);
+        }
+    );
     WriteToFile(result);
 }
 
-// exampe of function with actual state crawler
-function ProgressHandler(progress: CrawlerProgressCallback): void{
-    console.log("Progress handled");
-}
-
-function WriteToFile(list: crowlingWebPage[]){
+function WriteToFile(list: CrowledWebPage[]){
     writeFileSync("result.json",JSON.stringify(list));
 }
 
