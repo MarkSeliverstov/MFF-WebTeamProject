@@ -1,16 +1,23 @@
 import express from "express";
+import { graphqlHTTP } from "express-graphql";
 import { Server } from "http";
+import { schema } from "./graphqlAPI";
 
-let HttpServer: Server;
+export let server: Server;
 
-export function StartServer(port: number): Promise<void> {
+export function runServer(port: number): Promise<void> {
 	const app = express();
 
-	// Start listening
+	app.use(
+		"/graphql",
+		graphqlHTTP({
+			schema: schema,
+            graphiql: true
+		}),
+	);
+    
 	return new Promise((resolve) => {
-        HttpServer = app.listen(port, () => {
-            console.log(`[Http] Server listening on port ${port}`);
-            resolve();
-        });
-    });
+		server = app.listen(port, resolve);
+		console.log(`(Server) Listening on port ${port}`);
+	});
 }
