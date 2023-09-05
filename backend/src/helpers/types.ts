@@ -16,9 +16,37 @@ export type ExportedNode = {
 	owner: ExportedWebPage;
 };
 
-// Other usefull types for crawling
-export type StatusCode = {
-	statusCode: number | "aborted" | "failed" | "skipped"
+
+export type CrowledWebPage = {
+	url: string,
+	title?: string
+	links: string[]
+	crawlTimeStart?: number
+	crawlTimeEnd?: number
+	status: "pending" | "inProgress" | "failed" | "done"
 }
 
-export type NodeWithStatusCode = ExportedNode & StatusCode
+export interface webPageExecution {
+	webPage: webPageClientConfig;
+	status: "success" | "queued" | "running" | "failed";
+	message?: string;
+	crawlTime: number;
+	crawledPageCount: number;
+	totalPageCount: number;
+}
+
+export interface webPageClientConfig {
+	identifier: string;
+	/** user given label */
+	label: string;
+	/* where to start crawling */
+	url: string;
+	/* user given regex for deciding if page should be crawled */
+	regexp: string;
+	/* user given strings */
+	tags: string[];
+	/* if inactive, the site is not crawled based on the Periodicity */
+	active: boolean;
+	/* (minute, hour, day) - how often should the site be crawled */
+	pereodicity: number;
+}
