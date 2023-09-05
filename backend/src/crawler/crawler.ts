@@ -3,21 +3,23 @@ import { URL } from "url";
 import axios from 'axios';
 
 
-import { 
-	crowlingWebPage,
-	CrawlerProgressCallback 
-} from "../helpers/types.js";
+import { CrowledWebPage } from "../helpers/types.js";
+import { WorkerProgress } from "./worker.js";
 
 
 export class Crawler{
 	// List of pages to crawl
-	private pagesToCrawl: crowlingWebPage[] = [];
+	private pagesToCrawl: CrowledWebPage[] = [];
 	// List of pages that have been crawled
-	private crawledPages: crowlingWebPage[] = [];
+	private crawledPages: CrowledWebPage[] = [];
 	// The current page being crawled
-	private currentCrawlingWebPage?: crowlingWebPage;	
+	private currentCrawlingWebPage?: CrowledWebPage;	
 	// Set of seen links
 	private seenPages = new Set<string>;
+
+	private isAborted = false;
+
+	private getTotalCrawledCount() {return this.crawledPages.length + this.pagesToCrawl.length;}
 
 	// Function to fetch a page and return its text
 	private async fetchPage(url: string): Promise<string> {
@@ -48,26 +50,28 @@ export class Crawler{
 	}
 
 	// Function to parse links from a Cheerio object
-	private parseHtml(html: string, currentPage: crowlingWebPage){
+	private parseHtml(html: string, currentPage: CrowledWebPage){
 		const $ = load(html);
 		// Set the start time, title, links, and end time of the current page
 		currentPage.title = $("title").text();
 		currentPage.links = this.parseLinks($, currentPage.url);
-		currentPage.status = "success";
+		currentPage.status = "done";
 	}
 
 	// Function to update the crawling progress
-	private updateCrawlingProgress(progressCallback: (progress: CrawlerProgressCallback) => void): void {
-		const progress : CrawlerProgressCallback = {
-			status: "inProgress",
-			// Combine crawled pages and pages to crawl for progress
-			pages: [...this.crawledPages, ...this.pagesToCrawl]
+	private updateCrawlingProgress(
+		progressCallback: (progress: WorkerProgress) => void
+	): void {
+		const progress : WorkerProgress = {
+			crawled: this.crawledPages.length,
+			total: this.getTotalCrawledCount(),
+			webPages: [...this.crawledPages, ...this.pagesToCrawl]
 		};
 		// Call the progress callback with the progress
 		progressCallback(progress);
 	}
 
-	private initCrawlingWebPage(link: string): crowlingWebPage{
+	private initCrawlingWebPage(link: string): CrowledWebPage{
 		return {
 			url: link,
 			links: [],
@@ -79,33 +83,45 @@ export class Crawler{
 	public async StartCrawling(
 		baseUrl: URL, 
 		regex: RegExp, 
-		progressCallback: (progress: CrawlerProgressCallback) => void,
-	) : Promise<crowlingWebPage[]>{
+		progressCallback: (progress: WorkerProgress) => void,
+	) : Promise<CrowledWebPage[]>{
 		// Initialize the first crawling page
 		this.pagesToCrawl.push(this.initCrawlingWebPage(baseUrl.href));
 
 		console.log(`(crawler ${process.pid}) Crawling starting`);
-		while((this.currentCrawlingWebPage = this.pagesToCrawl.shift()) !== undefined){
+		while(this.pagesToCrawl.length !== 0){
+			if (this.isAborted === true) {
+				console.log(`(crawler ${process.pid}) Crawler was aborted, total pages crawled: ${this.crawledPages.length}`);
+				return this.crawledPages;
+			}
+
+			this.currentCrawlingWebPage = this.pagesToCrawl.shift();
+			if (this.currentCrawlingWebPage === undefined) continue;
+
 			this.currentCrawlingWebPage.crawlTimeStart = Date.now();
 			this.currentCrawlingWebPage.status = "inProgress";
 
 			this.seenPages.add(this.currentCrawlingWebPage.url);
 
 			this.updateCrawlingProgress(progressCallback);
-			console.log("hello");
 			// If the current page's URL doesn't match the regex, continue to the next iteration
 			if (!regex.test(this.currentCrawlingWebPage.url)){
-				console.log(`(crawler ${process.pid}) Invalid URL: ${this.currentCrawlingWebPage.url}, current progress: ${this.crawledPages.length+1}/${this.crawledPages.length + this.pagesToCrawl.length+1}`);
+				console.log(
+					`(crawler ${process.pid}) Invalid URL: ${this.currentCrawlingWebPage.url}, `+
+					`current progress: ${this.crawledPages.length}/${this.getTotalCrawledCount()}`
+				);
 				this.currentCrawlingWebPage.status = "failed";
-				this.currentCrawlingWebPage.failedReason = "Invalid URL";
+				this.crawledPages.push(this.currentCrawlingWebPage);
 				continue;
 			}
-			console.log("hello2");
 
 			try{
 				// Fetch the page and add its URL to the seen links
 				const html = await this.fetchPage(this.currentCrawlingWebPage.url);
-				console.log(`(crawler ${process.pid}) Crawling ${this.currentCrawlingWebPage.url}, current progress: ${this.crawledPages.length+1}/${this.crawledPages.length + this.pagesToCrawl.length+1}`);
+				console.log(
+					`(crawler ${process.pid}) Crawling ${this.currentCrawlingWebPage.url}, `+
+					`current progress: ${this.crawledPages.length}/${this.getTotalCrawledCount()}`
+				);
 
 				// If the page was loaded successfully, crawl it
 				if (html) {
@@ -119,16 +135,18 @@ export class Crawler{
 						}
 					}
 				} else {
-					this.currentCrawlingWebPage.status = "success";
+					this.currentCrawlingWebPage.status = "done";
 					this.crawledPages.push(this.currentCrawlingWebPage);
 				}
 			}
 			catch (error) {
 				// If an error occurred while fetching the page, log it and add the page to the crawled pages
 				this.currentCrawlingWebPage.status = "failed";
-				this.currentCrawlingWebPage.failedReason = "Undefinded error when crawling";
 				this.crawledPages.push(this.currentCrawlingWebPage);
-				console.log(`(crawler ${process.pid}) Crawling failed ${this.currentCrawlingWebPage.url}, current progress: ${this.crawledPages.length+1}/${this.crawledPages.length + this.pagesToCrawl.length+1},${error}`);
+				console.log(
+					`(crawler ${process.pid}) Crawling failed ${this.currentCrawlingWebPage.url}, `+
+					`current progress: ${this.crawledPages.length}/${this.getTotalCrawledCount()}, ${error}`
+				);
 			} finally {
 				this.currentCrawlingWebPage.crawlTimeEnd = Date.now();
 				// Calculate the time spent crawling the current page
@@ -139,5 +157,9 @@ export class Crawler{
 
 		console.log(`(crawler ${process.pid}) Crawling finished, total pages crawled: ${this.crawledPages.length}`);
 		return this.crawledPages;
+	}
+
+	public abort(): void {
+		this.isAborted = true;
 	}
 }
