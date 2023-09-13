@@ -25,6 +25,15 @@ export interface WebsiteRecord {
 	tags: string[];
 }
 
+export interface Execution {
+	executionId?: ObjectId;
+	websiteRecordId: ObjectId;
+	crawlTimeStart: Date;
+	crawlTimeEnd: Date;
+	status: 'success' | 'failed' | 'running';
+	sitesCrawled: number;
+}
+
 export abstract class Model<T> {
 	abstract collection: Collection;
 	abstract create(item: T): Promise<ObjectId | null>;
