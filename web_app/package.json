@@ -10,7 +10,8 @@
 		"check:watch": "svelte-kit sync && svelte-check --threshold error --tsconfig ./tsconfig.json --watch",
 		"test:unit": "vitest",
 		"lint": "prettier --plugin-search-dir . --check . && eslint .",
-		"format": "prettier --plugin-search-dir . --write ."
+		"format": "prettier --plugin-search-dir . --write .",
+		"generate_docs": "redocly build-docs swaggerSpecification.json --output=swagger.html"
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-auto": "^2.0.0",
@@ -33,6 +34,7 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"@redocly/cli": "^1.1.0",
 		"@sveltejs/adapter-node": "^1.0.0-next.106",
 		"cytoscape": "^3.2.0",
 		"cytoscape-popper": "^2.0.0",

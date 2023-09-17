@@ -1,0 +1,484 @@
+{
+	"openapi": "3.0.0",
+	"info": {
+		"title": "API",
+		"version": "1.0.0"
+	},
+	"paths": {
+		"/api/execution/{id}": {
+			"get": {
+				"summary": "Get an execution by ID",
+				"description": "Retrieves an execution record by its unique identifier.",
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						},
+						"description": "The unique identifier of the execution record."
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "The requested execution record.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Execution"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "No execution with this ID found."
+					}
+				},
+				"tags": ["Executions"]
+			},
+			"put": {
+				"summary": "Update an execution by ID",
+				"description": "Updates an execution record by its unique identifier.",
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						},
+						"description": "The unique identifier of the execution record."
+					}
+				],
+				"requestBody": {
+					"description": "The updated execution record.",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/Execution"
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "The updated execution record.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Execution"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "No execution with this ID found."
+					}
+				},
+				"tags": ["Executions"]
+			},
+			"delete": {
+				"summary": "Delete an execution by ID",
+				"description": "Deletes an execution record by its unique identifier.",
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						},
+						"description": "The unique identifier of the execution record."
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Deletion success status.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"success": {
+											"type": "boolean"
+										}
+									}
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "No execution with this ID found."
+					}
+				},
+				"tags": ["Executions"]
+			}
+		},
+		"/api/execution": {
+			"post": {
+				"summary": "Create a new execution record",
+				"description": "Creates a new execution record and returns the ID of the created record.",
+				"requestBody": {
+					"description": "The execution record to create.",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/Execution"
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "The ID of the created execution record.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "string"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Failed to create record"
+					}
+				},
+				"tags": ["Executions"]
+			}
+		},
+		"/api/executions/{id}": {
+			"get": {
+				"summary": "Get executions by Website Record ID",
+				"description": "Retrieves a list of executions associated with a specific Website Record by its unique identifier.",
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						},
+						"description": "The unique identifier of the Website Record."
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "A list of executions associated with the Website Record.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "array",
+									"items": {
+										"$ref": "#/components/schemas/Execution"
+									}
+								}
+							}
+						}
+					}
+				},
+				"tags": ["Executions"]
+			},
+			"delete": {
+				"summary": "Delete executions by Website Record ID",
+				"description": "Deletes all executions associated with a specific Website Record by its unique identifier.",
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						},
+						"description": "The unique identifier of the Website Record."
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Deletion success status.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"success": {
+											"type": "boolean"
+										}
+									}
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "No executions with this Website Record ID found."
+					}
+				},
+				"tags": ["Executions"]
+			}
+		},
+		"/api/executions": {
+			"get": {
+				"summary": "Get a list of executions",
+				"description": "Returns a list of execution records.",
+				"responses": {
+					"200": {
+						"description": "A list of executions",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "array",
+									"items": {
+										"$ref": "#/components/schemas/Execution"
+									}
+								}
+							}
+						}
+					}
+				},
+				"tags": ["Executions"]
+			}
+		},
+		"/api/record/{id}": {
+			"get": {
+				"summary": "Get a website record by ID",
+				"description": "Retrieves a website record by its unique identifier.",
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						},
+						"description": "The unique identifier of the website record."
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "The requested website record.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/WebsiteRecord"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "No record with this ID found."
+					}
+				},
+				"tags": ["Website Records"]
+			},
+			"put": {
+				"summary": "Update a website record by ID",
+				"description": "Updates a website record by its unique identifier.",
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						},
+						"description": "The unique identifier of the website record."
+					}
+				],
+				"requestBody": {
+					"description": "The updated website record.",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/WebsiteRecord"
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "The updated website record.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/WebsiteRecord"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "No record with this ID found."
+					}
+				},
+				"tags": ["Website Records"]
+			},
+			"delete": {
+				"summary": "Delete a website record by ID",
+				"description": "Deletes a website record by its unique identifier.",
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						},
+						"description": "The unique identifier of the website record."
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Deletion success status.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"success": {
+											"type": "boolean"
+										}
+									}
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "No record with this ID found."
+					}
+				},
+				"tags": ["Website Records"]
+			}
+		},
+		"/api/record": {
+			"post": {
+				"summary": "Create a new website record",
+				"description": "Creates a new website record and returns the ID of the created record.",
+				"requestBody": {
+					"description": "The website record to create.",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/WebsiteRecord"
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "The ID of the created website record.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "string"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Failed to create record"
+					}
+				},
+				"tags": ["Website Records"]
+			}
+		},
+		"/api/records": {
+			"get": {
+				"summary": "Get a list of website records",
+				"description": "Returns a list of website records from the database.",
+				"responses": {
+					"200": {
+						"description": "A list of website records",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "array",
+									"items": {
+										"$ref": "#/components/schemas/WebsiteRecord"
+									}
+								}
+							}
+						}
+					}
+				},
+				"tags": ["Website Records"]
+			}
+		}
+	},
+	"components": {
+		"schemas": {
+			"Periodicity": {
+				"type": "object",
+				"properties": {
+					"unit": {
+						"type": "string",
+						"enum": ["minutes", "hours", "days"]
+					},
+					"interval": {
+						"type": "number"
+					}
+				},
+				"required": ["unit", "interval"]
+			},
+			"WebsiteRecord": {
+				"type": "object",
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"url": {
+						"type": "string"
+					},
+					"periodicity": {
+						"$ref": "#/components/schemas/Periodicity"
+					},
+					"regexp": {
+						"type": "string"
+					},
+					"label": {
+						"type": "string"
+					},
+					"active": {
+						"type": "boolean"
+					},
+					"tags": {
+						"type": "array",
+						"items": {
+							"type": "string"
+						}
+					}
+				},
+				"required": ["url", "periodicity", "regexp", "label", "active", "tags"]
+			},
+			"Execution": {
+				"type": "object",
+				"properties": {
+					"executionId": {
+						"type": "string"
+					},
+					"websiteRecordId": {
+						"type": "string"
+					},
+					"crawlTimeStart": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"crawlTimeEnd": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"status": {
+						"type": "string",
+						"enum": ["success", "failed", "running"]
+					},
+					"sitesCrawled": {
+						"type": "integer"
+					}
+				},
+				"required": ["websiteRecordId", "crawlTimeStart", "crawlTimeEnd", "status", "sitesCrawled"]
+			}
+		}
+	}
+}

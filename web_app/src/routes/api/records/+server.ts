@@ -1,3 +1,22 @@
+/**
+ * @swagger
+ * /api/records:
+ *   get:
+ *     summary: Get a list of website records
+ *     description: Returns a list of website records from the database.
+ *     responses:
+ *       '200':
+ *         description: A list of website records
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/WebsiteRecord'
+ *     tags:
+ *       - Website Records
+ */
+
 import WebsiteRecordModel from '$db/models/WebsiteRecordModel';
 import { json } from '@sveltejs/kit';
 
