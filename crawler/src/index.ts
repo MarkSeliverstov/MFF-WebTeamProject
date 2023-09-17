@@ -40,5 +40,5 @@ function WriteToFile(list: CrowledWebPage[]){
 }
 
 
-// Run();
-ManualCrawl();
+Run();
+// ManualCrawl();
