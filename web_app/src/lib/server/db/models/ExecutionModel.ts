@@ -19,12 +19,17 @@ export default class ExecutionModel extends Model<Execution> {
 
 			if (result) {
 				return {
-					executionId: result._id,
-					websiteRecordId: result.websiteRecordId,
+					id: result._id,
+					ownerId: result.ownerId,
+					groupId: result.groupId,
+					root: result.root,
+					url: result.url,
 					crawlTimeStart: result.crawlTimeStart,
 					crawlTimeEnd: result.crawlTimeEnd,
 					status: result.status,
-					sitesCrawled: result.sitesCrawled
+					sitesCrawled: result.sitesCrawled,
+					links: result.links,
+					title: result.title
 				} as Execution;
 			}
 			return null;
@@ -57,18 +62,24 @@ export default class ExecutionModel extends Model<Execution> {
 			return false;
 		}
 	}
+
 	async getAll(): Promise<Execution[]> {
 		try {
-			const result = await this.collection.find().toArray();
+			const result = await this.collection.find({ root: true }).toArray();
 			return result.map(
 				(item) =>
 					({
-                        executionId: item._id,
-                        websiteRecordId: item.websiteRecordId,
-                        crawlTimeStart: item.crawlTimeStart,
-                        crawlTimeEnd: item.crawlTimeEnd,
-                        status: item.status,
-                        sitesCrawled: item.sitesCrawled
+						id: item._id,
+						ownerId: item.ownerId,
+						groupId: item.groupId,
+						root: item.root,
+						url: item.url,
+						crawlTimeStart: item.crawlTimeStart,
+						crawlTimeEnd: item.crawlTimeEnd,
+						status: item.status,
+						sitesCrawled: item.sitesCrawled,
+						links: item.links,
+						title: item.title
 					} as Execution)
 			);
 		} catch (error) {
@@ -76,20 +87,26 @@ export default class ExecutionModel extends Model<Execution> {
 			return [];
 		}
 	}
-    async getAllByWebsiteRecordId(websiteRecordId: string): Promise<Execution[]> {
+
+    async getAllByOwnerIdAndGroupId(ownerId: string, groupId: number): Promise<Execution[]> {
         try {
-            const result = await this.collection.find({ websiteRecordId: new ObjectId(websiteRecordId) }).toArray();
+            const result = await this.collection.find({ ownerId: new ObjectId(ownerId), groupId }).toArray();
             return result.map(
-                (item) =>
-                    ({
-                        executionId: item._id,
-                        websiteRecordId: item.websiteRecordId,
-                        crawlTimeStart: item.crawlTimeStart,
-                        crawlTimeEnd: item.crawlTimeEnd,
-                        status: item.status,
-                        sitesCrawled: item.sitesCrawled
-                    } as Execution)
-            );
+				(item) =>
+					({
+						id: item._id,
+						ownerId: item.ownerId,
+						groupId: item.groupId,
+						root: item.root,
+						url: item.url,
+						crawlTimeStart: item.crawlTimeStart,
+						crawlTimeEnd: item.crawlTimeEnd,
+						status: item.status,
+						sitesCrawled: item.sitesCrawled,
+						links: item.links,
+						title: item.title
+					} as Execution)
+			);
         }
         catch (error) {
             console.log(error);
@@ -97,9 +114,9 @@ export default class ExecutionModel extends Model<Execution> {
         }
     }
 
-    async deleteAllByWebsiteRecordId(websiteRecordId: string): Promise<boolean> {
+    async deleteAllByOwnerId(ownerId: string): Promise<boolean> {
         try {
-            const result = await this.collection.deleteMany({ websiteRecordId: new ObjectId(websiteRecordId) });
+            const result = await this.collection.deleteMany({ ownerId: new ObjectId(ownerId) });
             return result.deletedCount > 0;
         }
         catch (error) {
