@@ -39,7 +39,8 @@ export interface Execution {
 	crawlTimeEnd: Date;
 	status: 'success' | 'failed' | 'running';
 	sitesCrawled: number;
-	links: string[]; // Links that were found on the page
+	links: string[]; // Links that were found on the page,
+	title: string;
 }
 
 export abstract class Model<T> {
