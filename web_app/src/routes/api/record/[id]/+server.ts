@@ -1,77 +1,3 @@
-/**
- * @swagger
- * /api/record/{id}:
- *   get:
- *     summary: Get a website record by ID
- *     description: Retrieves a website record by its unique identifier.
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *         description: The unique identifier of the website record.
- *     responses:
- *       '200':
- *         description: The requested website record.
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/WebsiteRecord'
- *       '404':
- *         description: No record with this ID found.
- *   put:
- *     summary: Update a website record by ID
- *     description: Updates a website record by its unique identifier.
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *         description: The unique identifier of the website record.
- *     requestBody:
- *       description: The updated website record.
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/WebsiteRecord'
- *     responses:
- *       '200':
- *         description: The updated website record.
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/WebsiteRecord'
- *       '404':
- *         description: No record with this ID found.
- *   delete:
- *     summary: Delete a website record by ID
- *     description: Deletes a website record by its unique identifier.
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *         description: The unique identifier of the website record.
- *     responses:
- *       '200':
- *         description: Deletion success status.
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *       '404':
- *         description: No record with this ID found.
- *     tags:
- *       - Website Records
- */
-
 import WebsiteRecordModel from '$db/models/WebsiteRecordModel';
 import type { WebsiteRecord } from '$lib/types';
 import { json, error } from '@sveltejs/kit';
@@ -88,14 +14,12 @@ export async function GET({ params }) {
         {
             id: data.id?.toString(),
             url: data.url,
-            periodicity: {
-                unit: data.periodicity.unit,
-                interval: data.periodicity.interval
-            },
+            periodicity: data.periodicity,
             regexp: data.regexp,
             label: data.label,
             active: data.active,
-            tags: data.tags
+            tags: data.tags,
+            latestGroupId: data.latestGroupId
         }
 	);
 }
@@ -113,14 +37,12 @@ export async function PUT({ params, request }) {
         {
             id: updatedRecord.id?.toString(),
             url: updatedRecord.url,
-            periodicity: {
-                unit: updatedRecord.periodicity.unit,
-                interval: updatedRecord.periodicity.interval
-            },
+            periodicity: updatedRecord.periodicity,
             regexp: updatedRecord.regexp,
             label: updatedRecord.label,
             active: updatedRecord.active,
-            tags: updatedRecord.tags
+            tags: updatedRecord.tags,
+            latestGroupId: updatedRecord.latestGroupId
         }
     );
 }
