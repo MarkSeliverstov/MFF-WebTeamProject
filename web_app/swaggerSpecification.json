@@ -412,15 +412,20 @@
 			"Periodicity": {
 				"type": "object",
 				"properties": {
-					"unit": {
-						"type": "string",
-						"enum": ["minutes", "hours", "days"]
+					"minutes": {
+						"type": "integer",
+						"minimum": 0
 					},
-					"interval": {
-						"type": "number"
+					"hours": {
+						"type": "integer",
+						"minimum": 0
+					},
+					"days": {
+						"type": "integer",
+						"minimum": 0
 					}
 				},
-				"required": ["unit", "interval"]
+				"required": ["minutes", "hours", "days"]
 			},
 			"WebsiteRecord": {
 				"type": "object",
@@ -448,17 +453,31 @@
 						"items": {
 							"type": "string"
 						}
+					},
+					"latestGroupId": {
+						"type": "integer",
+						"minimum": -1
 					}
 				},
-				"required": ["url", "periodicity", "regexp", "label", "active", "tags"]
+				"required": ["url", "periodicity", "regexp", "label", "active", "tags", "latestGroupId"]
 			},
 			"Execution": {
 				"type": "object",
 				"properties": {
-					"executionId": {
+					"id": {
 						"type": "string"
 					},
-					"websiteRecordId": {
+					"ownerId": {
+						"type": "string"
+					},
+					"groupId": {
+						"type": "integer",
+						"minimum": 0
+					},
+					"root": {
+						"type": "boolean"
+					},
+					"url": {
 						"type": "string"
 					},
 					"crawlTimeStart": {
@@ -474,10 +493,20 @@
 						"enum": ["success", "failed", "running"]
 					},
 					"sitesCrawled": {
-						"type": "integer"
+						"type": "integer",
+						"minimum": 0
+					},
+					"links": {
+						"type": "array",
+						"items": {
+							"type": "string"
+						}
+					},
+					"title": {
+						"type": "string"
 					}
 				},
-				"required": ["websiteRecordId", "crawlTimeStart", "crawlTimeEnd", "status", "sitesCrawled"]
+				"required": ["ownerId", "groupId", "root", "url", "crawlTimeStart", "crawlTimeEnd", "status", "sitesCrawled", "links", "title"]
 			}
 		}
 	}
