@@ -150,39 +150,8 @@
 			}
 		},
 		"/api/executions/{id}": {
-			"get": {
-				"summary": "Get executions by Website Record ID",
-				"description": "Retrieves a list of executions associated with a specific Website Record by its unique identifier.",
-				"parameters": [
-					{
-						"in": "path",
-						"name": "id",
-						"required": true,
-						"schema": {
-							"type": "string"
-						},
-						"description": "The unique identifier of the Website Record."
-					}
-				],
-				"responses": {
-					"200": {
-						"description": "A list of executions associated with the Website Record.",
-						"content": {
-							"application/json": {
-								"schema": {
-									"type": "array",
-									"items": {
-										"$ref": "#/components/schemas/Execution"
-									}
-								}
-							}
-						}
-					}
-				},
-				"tags": ["Executions"]
-			},
 			"delete": {
-				"summary": "Delete executions by Website Record ID",
+				"summary": "Delete executions by Owner ID",
 				"description": "Deletes all executions associated with a specific Website Record by its unique identifier.",
 				"parameters": [
 					{
@@ -220,8 +189,8 @@
 		},
 		"/api/executions": {
 			"get": {
-				"summary": "Get a list of executions",
-				"description": "Returns a list of execution records.",
+				"summary": "Get a list of root executions",
+				"description": "Returns a list of root execution records.",
 				"responses": {
 					"200": {
 						"description": "A list of executions",
@@ -235,6 +204,52 @@
 								}
 							}
 						}
+					}
+				},
+				"tags": ["Executions"]
+			}
+		},
+		"/api/executions?ownerId={ownerId}&ownerId={ownerId}": {
+			"get": {
+				"summary": "Get a list of executions by group ID and owner ID",
+				"description": "Returns a list of executions filtered by group ID and owner ID.",
+				"parameters": [
+					{
+						"in": "query",
+						"name": "ownerId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						},
+						"description": "The unique identifier of the Website Record."
+					},
+					{
+						"in": "query",
+						"name": "groupId",
+						"required": true,
+						"schema": {
+							"type": "integer",
+							"minimum": 0
+						},
+						"description": "The group ID of the execution."
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "A list of executions",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "array",
+									"items": {
+										"$ref": "#/components/schemas/Execution"
+									}
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "groupId must be a number"
 					}
 				},
 				"tags": ["Executions"]
