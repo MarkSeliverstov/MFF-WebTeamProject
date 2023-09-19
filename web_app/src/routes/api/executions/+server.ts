@@ -1,37 +1,41 @@
-/**
- * @swagger
- * /api/executions:
- *   get:
- *     summary: Get a list of executions
- *     description: Returns a list of execution records.
- *     responses:
- *       '200':
- *         description: A list of executions
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Execution'
- *     tags:
- *       - Executions
- */
-
 import ExecutionModel from '$db/models/ExecutionModel';
-import { json } from '@sveltejs/kit';
+import type { Execution } from '$lib/types.js';
+import { json, error } from '@sveltejs/kit';
 
-export async function GET() {
+export async function GET({ url }) {
 	const executionModel = new ExecutionModel();
-	const data = await executionModel.getAll();
+
+	const ownerId = url.searchParams.get('ownerId') ?? null;
+	const groupId = url.searchParams.get('groupId') ?? null;
+
+	let data: Execution[];
+
+	if(ownerId && groupId) {
+		const convertedGroupId = Number(groupId);
+
+		if(isNaN(convertedGroupId)) {
+			throw error(400, 'groupId must be a number');
+		}
+
+		data = await executionModel.getAllByOwnerIdAndGroupId(ownerId, convertedGroupId);
+	} else {
+		data = await executionModel.getAll();
+	}
+
 
 	return json(
 		data.map((execution) => ({
-			executionId: execution.executionId?.toString(),
-			websiteRecordId: execution.websiteRecordId.toString(),
+			id: execution.id?.toString(),
+			ownerId: execution.ownerId.toString(),
+			groupId: execution.groupId,
+			root: execution.root,
+			url: execution.url,
 			crawlTimeStart: execution.crawlTimeStart,
 			crawlTimeEnd: execution.crawlTimeEnd,
 			status: execution.status,
-			sitesCrawled: execution.sitesCrawled
+			sitesCrawled: execution.sitesCrawled,
+			links: execution.links,
+			title: execution.title
 		}))
 	);
 }
