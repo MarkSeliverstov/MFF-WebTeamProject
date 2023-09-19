@@ -25,7 +25,8 @@ export default class WebsiteRecordModel extends Model<WebsiteRecord> {
 					regexp: result.regexp,
 					label: result.label,
 					active: result.active,
-					tags: result.tags
+					tags: result.tags,
+                    latestGroupId: result.latestGroupId
 				} as WebsiteRecord;
 			}
 			return null;
@@ -68,7 +69,8 @@ export default class WebsiteRecordModel extends Model<WebsiteRecord> {
                 regexp: item.regexp,
                 label: item.label,
                 active: item.active,
-                tags: item.tags
+                tags: item.tags,
+                latestGroupId: item.latestGroupId
             } as WebsiteRecord));
         } catch (error) {
             console.log(error);
