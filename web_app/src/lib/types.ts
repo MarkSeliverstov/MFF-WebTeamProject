@@ -19,7 +19,7 @@ export interface Periodicity {
 export interface WebsiteRecord {
 	id?: ObjectId
 	url: string;
-	periodicity?: Periodicity;
+	periodicity: Periodicity;
 	regexp: string;
 	label: string;
 	active: boolean;

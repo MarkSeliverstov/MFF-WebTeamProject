@@ -59,6 +59,8 @@ export default class WebsiteRecordModel extends Model<WebsiteRecord> {
 				} as Error;
 			}
 
+			const requiredFields = ['url', 'periodicity', 'regexp', 'label', 'active', 'tags', 'latestGroupId'];
+			
 			const result = await this.collection.updateOne(
 				{ _id: new ObjectId(id) },
 				{ $set: updatedItem }
