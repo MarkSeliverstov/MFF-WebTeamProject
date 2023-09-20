@@ -1,5 +1,5 @@
 import WebsiteRecordModel from '$db/models/WebsiteRecordModel';
-import type { WebsiteRecord } from '$lib/types';
+import { type WebsiteRecord, isError } from '$lib/types';
 import { json, error } from '@sveltejs/kit';
 
 export async function POST({ request }) {
@@ -7,8 +7,8 @@ export async function POST({ request }) {
 	const record = await request.json();
 	const createdId = await websiteRecordModel.create(record as WebsiteRecord);
 
-	if (!createdId) {
-		throw error(500, 'Failed to create record');
+	if (isError(createdId)) {
+		throw error(createdId.code, createdId.message);
 	}
 
 	return json(createdId);
