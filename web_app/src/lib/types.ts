@@ -43,11 +43,25 @@ export interface Execution {
 	title: string;
 }
 
+export interface Error {
+	code: number;
+	message: string;
+}
+
+export function isError(obj: unknown): obj is Error {
+	if (obj && typeof obj === 'object' && 'code' in obj && 'message' in obj && Object.keys(obj).length === 2) {
+		const error = obj as Error;
+		return typeof error.code === 'number' && typeof error.message === 'string';
+	}
+	return false;
+}
+
+
 export abstract class Model<T> {
 	abstract collection: Collection;
-	abstract create(item: T): Promise<ObjectId | null>;
-	abstract getByID(id: string): Promise<T | null>;
-	abstract update(id: string, updatedItem: T): Promise<T | null>;
-	abstract delete(id: string): Promise<boolean>;
-	abstract getAll(): Promise<T[]>;
+	abstract create(item: T): Promise<ObjectId | Error>;
+	abstract getByID(id: string): Promise<T | Error>;
+	abstract update(id: string, updatedItem: T): Promise<T | Error>;
+	abstract delete(id: string): Promise<boolean | Error>;
+	abstract getAll(): Promise<T[] | Error>;
 }
