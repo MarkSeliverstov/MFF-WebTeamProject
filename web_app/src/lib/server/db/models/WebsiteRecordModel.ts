@@ -59,7 +59,24 @@ export default class WebsiteRecordModel extends Model<WebsiteRecord> {
 				} as Error;
 			}
 
+			if(typeof updatedItem !== 'object') {
+				return {
+					code: 400,
+					message: 'Invalid request body(must be an object)'
+				} as Error;
+			}
+
 			const requiredFields = ['url', 'periodicity', 'regexp', 'label', 'active', 'tags', 'latestGroupId'];
+
+			const hasAllRequiredFields = requiredFields.every((field) => field in updatedItem);
+			const hasNoExtraField = Object.keys(updatedItem).length === requiredFields.length;
+
+			if (!hasAllRequiredFields || !hasNoExtraField) {
+				return {
+					code: 400,
+					message: 'Invalid request body(required field missing or extra field present)'
+				} as Error;
+			}
 			
 			const result = await this.collection.updateOne(
 				{ _id: new ObjectId(id) },
