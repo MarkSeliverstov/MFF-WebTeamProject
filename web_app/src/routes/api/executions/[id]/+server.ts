@@ -1,12 +1,13 @@
 import ExecutionModel from '$db/models/ExecutionModel';
+import  { isError } from '$lib/types';
 import { json, error } from '@sveltejs/kit';
 
 export async function DELETE({ params }) {
 	const executionModel = new ExecutionModel();
 	const result = await executionModel.deleteAllByOwnerId(params.id);
 
-	if (!result) {
-		throw error(404, 'No executions with this Website Record ID found');
+	if (isError(result)) {
+		throw error(result.code, result.message);
 	}
 
 	return json({

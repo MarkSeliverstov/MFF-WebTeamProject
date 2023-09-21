@@ -1,5 +1,5 @@
 import ExecutionModel from '$db/models/ExecutionModel';
-import type { Execution } from '$lib/types.js';
+import  { type Execution, type Error, isError } from '$lib/types.js';
 import { json, error } from '@sveltejs/kit';
 
 export async function GET({ url }) {
@@ -8,7 +8,7 @@ export async function GET({ url }) {
 	const ownerId = url.searchParams.get('ownerId') ?? null;
 	const groupId = url.searchParams.get('groupId') ?? null;
 
-	let data: Execution[];
+	let data: Execution[] | Error;
 
 	if(ownerId && groupId) {
 		const convertedGroupId = Number(groupId);
@@ -22,6 +22,9 @@ export async function GET({ url }) {
 		data = await executionModel.getAll();
 	}
 
+	if (isError(data)) {
+		throw error(data.code, data.message);
+	}
 
 	return json(
 		data.map((execution) => ({
