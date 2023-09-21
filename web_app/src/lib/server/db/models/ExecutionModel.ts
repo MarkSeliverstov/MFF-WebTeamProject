@@ -1,24 +1,54 @@
 import { Model, type Execution, type Error, isExecutionWithoutId } from '$lib/types';
-import { type Collection, ObjectId } from 'mongodb';
+import { type Collection, ObjectId, Long } from 'mongodb';
 import db from '$db/database';
 
 export default class ExecutionModel extends Model<Execution> {
 	collection: Collection = db.collection('executions');
 	async create(execution: Execution): Promise<ObjectId | Error> {
 		try {
-			if (!isExecutionWithoutId(execution)) {
+			if (!('ownerId' in execution)) {
 				return {
 					code: 400,
-					message: 'Invalid website record without ID'
+					message: 'Invalid execution without ID'
 				} as Error;
 			}
 
-			const result = await this.collection.insertOne(execution);
+			if (!ObjectId.isValid(execution.ownerId)) {
+				return {
+					code: 400,
+					message: 'Invalid Mongo ID'
+				} as Error;
+			}
+
+			execution.ownerId = new ObjectId(execution.ownerId);
+
+			if (!isExecutionWithoutId(execution)) {
+				return {
+					code: 400,
+					message: 'Invalid execution without ID'
+				} as Error;
+			}
+
+			// I need to do it this way because if I use BSON type int in the validator, it will not validate but using long is fine but Mongo needs it as the Long object.
+			const preparedExecution = {
+				groupId: execution.groupId,
+				ownerId: execution.ownerId,
+				root: execution.root,
+				url: execution.url,
+				crawlTimeStart: new Long(execution.crawlTimeStart),
+				crawlTimeEnd: new Long(execution.crawlTimeEnd),
+				status: execution.status,
+				sitesCrawled: execution.sitesCrawled,
+				links: execution.links,
+				title: execution.title
+			};
+
+			const result = await this.collection.insertOne(preparedExecution);
 			return result.insertedId;
 		} catch (error) {
 			return {
 				code: 500,
-				message: 'Failed to create execution'
+				message: error
 			} as Error;
 		}
 	}
@@ -69,6 +99,22 @@ export default class ExecutionModel extends Model<Execution> {
 				} as Error;
 			}
 
+			if (!('ownerId' in updatedItem)) {
+				return {
+					code: 400,
+					message: 'Invalid execution without ID'
+				} as Error;
+			}
+
+			if (!ObjectId.isValid(updatedItem.ownerId)) {
+				return {
+					code: 400,
+					message: 'Invalid Mongo ID'
+				} as Error;
+			}
+
+			updatedItem.ownerId = new ObjectId(updatedItem.ownerId);
+
 			if (!isExecutionWithoutId(updatedItem)) {
 				return {
 					code: 400,
@@ -76,9 +122,23 @@ export default class ExecutionModel extends Model<Execution> {
 				} as Error;
 			}
 
+			// I need to do it this way because if I use BSON type int in the validator, it will not validate but using long is fine but Mongo needs it as the Long object.
+			const preparedUpdatedItem = {
+				groupId: updatedItem.groupId,
+				ownerId: updatedItem.ownerId,
+				root: updatedItem.root,
+				url: updatedItem.url,
+				crawlTimeStart: new Long(updatedItem.crawlTimeStart),
+				crawlTimeEnd: new Long(updatedItem.crawlTimeEnd),
+				status: updatedItem.status,
+				sitesCrawled: updatedItem.sitesCrawled,
+				links: updatedItem.links,
+				title: updatedItem.title
+			};
+
 			const result = await this.collection.updateOne(
 				{ _id: new ObjectId(id) },
-				{ $set: updatedItem }
+				{ $set: preparedUpdatedItem }
 			);
 			if (result.modifiedCount > 0) {
 				return {
