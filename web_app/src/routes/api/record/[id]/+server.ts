@@ -24,7 +24,19 @@ export async function GET({ params }) {
 
 export async function PUT({ params, request }) {
 	const websiteRecordModel = new WebsiteRecordModel();
-	const record = await request.json();
+	
+	let record;
+	try {
+		record = await request.json();
+	}
+	catch (error) {
+		record = null;
+	}
+
+	if (!record) {
+		throw error(400, 'Invalid JSON');
+	}
+
 	const updatedRecord = await websiteRecordModel.update(params.id, record as WebsiteRecord);
 
 	if (isError(updatedRecord)) {
