@@ -82,8 +82,8 @@ export interface Execution {
 	groupId: number; // Belongs to all the pages that were crawled in the same crawling proccess
 	root: boolean; // Start page of crawling
 	url: string; // Url of the page that was crawled
-	crawlTimeStart: Date;
-	crawlTimeEnd: Date;
+	crawlTimeStart: number;
+	crawlTimeEnd: number;
 	status: 'success' | 'failed' | 'running' | 'queued';
 	sitesCrawled: number;
 	links: string[]; // Links that were found on the page,
@@ -112,8 +112,8 @@ export function isExecutionWithoutId(obj: unknown): obj is Execution {
 			typeof execution.groupId === 'number' &&
 			typeof execution.root === 'boolean' &&
 			typeof execution.url === 'string' &&
-			typeof execution.crawlTimeStart === 'string' &&
-			typeof execution.crawlTimeEnd === 'string' &&
+			typeof execution.crawlTimeStart === 'number' &&
+			typeof execution.crawlTimeEnd === 'number' &&
 			typeof execution.status === 'string' &&
 			(execution.status === 'success' ||
 				execution.status === 'failed' ||
