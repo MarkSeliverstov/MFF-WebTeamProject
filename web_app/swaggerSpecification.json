@@ -27,12 +27,68 @@
 							"application/json": {
 								"schema": {
 									"$ref": "#/components/schemas/Execution"
+								},
+								"example": {
+									"id": "650c8ccdcf633bdd999a06db",
+									"ownerId": "0c0b366987bb7eed7d17d62a",
+									"groupId": 73696,
+									"root": true,
+									"url": "https://gleaming-cinnamon.info",
+									"crawlTimeStart": 3703845916,
+									"crawlTimeEnd": 3457210445,
+									"status": "running",
+									"sitesCrawled": 63651,
+									"links": [
+										"https://pesky-mandate.biz",
+										"https://blissful-means.com",
+										"https://incompatible-clarification.org",
+										"http://worried-yellowjacket.name",
+										"https://paltry-extreme.info",
+										"https://remorseful-north.org"
+									],
+									"title": "beatae aspernatur architecto"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Invalid Mongo ID",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								},
+								"example": {
+									"message": "Invalid Mongo ID"
 								}
 							}
 						}
 					},
 					"404": {
-						"description": "No execution with this ID found."
+						"description": "Execution not found",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								},
+								"example": {
+									"message": "Execution not found"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Failed to get execution",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								},
+								"example": {
+									"message": "Failed to get execution"
+								}
+							}
+						}
 					}
 				},
 				"tags": ["Executions"]
@@ -57,7 +113,76 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "#/components/schemas/Execution"
+								"type": "object",
+								"properties": {
+									"ownerId": {
+										"type": "string"
+									},
+									"groupId": {
+										"type": "integer",
+										"minimum": 0
+									},
+									"root": {
+										"type": "boolean"
+									},
+									"url": {
+										"type": "string"
+									},
+									"crawlTimeStart": {
+										"type": "integer"
+									},
+									"crawlTimeEnd": {
+										"type": "integer"
+									},
+									"status": {
+										"type": "string",
+										"enum": ["success", "failed", "running", "queued"]
+									},
+									"sitesCrawled": {
+										"type": "integer",
+										"minimum": 0
+									},
+									"links": {
+										"type": "array",
+										"items": {
+											"type": "string"
+										}
+									},
+									"title": {
+										"type": "string"
+									}
+								},
+								"required": [
+									"ownerId",
+									"groupId",
+									"root",
+									"url",
+									"crawlTimeStart",
+									"crawlTimeEnd",
+									"status",
+									"sitesCrawled",
+									"links",
+									"title"
+								]
+							},
+							"example": {
+								"ownerId": "0c0b366987bb7eed7d17d62a",
+								"groupId": 73696,
+								"root": true,
+								"url": "https://gleaming-cinnamon.info",
+								"crawlTimeStart": 10,
+								"crawlTimeEnd": 11111,
+								"status": "running",
+								"sitesCrawled": 63651,
+								"links": [
+									"https://pesky-mandate.biz",
+									"https://blissful-means.com",
+									"https://incompatible-clarification.org",
+									"http://worried-yellowjacket.name",
+									"https://paltry-extreme.info",
+									"https://remorseful-north.org"
+								],
+								"title": "beatae aspernatur architecto"
 							}
 						}
 					}
@@ -69,12 +194,68 @@
 							"application/json": {
 								"schema": {
 									"$ref": "#/components/schemas/Execution"
+								},
+								"example": {
+									"id": "650c8ccdcf633bdd999a06db",
+									"ownerId": "0c0b366987bb7eed7d17d62a",
+									"groupId": 73696,
+									"root": true,
+									"url": "https://gleaming-cinnamon.info",
+									"crawlTimeStart": 10,
+									"crawlTimeEnd": 11111,
+									"status": "running",
+									"sitesCrawled": 63651,
+									"links": [
+										"https://pesky-mandate.biz",
+										"https://blissful-means.com",
+										"https://incompatible-clarification.org",
+										"http://worried-yellowjacket.name",
+										"https://paltry-extreme.info",
+										"https://remorseful-north.org"
+									],
+									"title": "beatae aspernatur architecto"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Invalid Mongo ID, Invalid JSON or Invalid execution without ID ",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								},
+								"example": {
+									"message": "Invalid Mongo ID"
 								}
 							}
 						}
 					},
 					"404": {
-						"description": "No execution with this ID found."
+						"description": "Execution not found or no changes were made",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								},
+								"example": {
+									"message": "Execution not found or no changes were made"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Failed to update execution",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								},
+								"example": {
+									"message": "Failed to update execution"
+								}
+							}
+						}
 					}
 				},
 				"tags": ["Executions"]
@@ -105,12 +286,51 @@
 											"type": "boolean"
 										}
 									}
+								},
+								"example": {
+									"success": true
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Invalid Mongo ID",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								},
+								"example": {
+									"message": "Invalid Mongo ID"
 								}
 							}
 						}
 					},
 					"404": {
-						"description": "No execution with this ID found."
+						"description": "Execution not found",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								},
+								"example": {
+									"message": "Execution not found"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Failed to delete execution",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								},
+								"example": {
+									"message": "Failed to delete execution"
+								}
+							}
+						}
 					}
 				},
 				"tags": ["Executions"]
@@ -126,7 +346,57 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "#/components/schemas/Execution"
+								"type": "object",
+								"properties": {
+									"ownerId": {
+										"type": "string"
+									},
+									"groupId": {
+										"type": "integer",
+										"minimum": 0
+									},
+									"root": {
+										"type": "boolean"
+									},
+									"url": {
+										"type": "string"
+									},
+									"crawlTimeStart": {
+										"type": "integer"
+									},
+									"crawlTimeEnd": {
+										"type": "integer"
+									},
+									"status": {
+										"type": "string",
+										"enum": ["success", "failed", "running", "queued"]
+									},
+									"sitesCrawled": {
+										"type": "integer",
+										"minimum": 0
+									},
+									"links": {
+										"type": "array",
+										"items": {
+											"type": "string"
+										}
+									},
+									"title": {
+										"type": "string"
+									}
+								},
+								"required": [
+									"ownerId",
+									"groupId",
+									"root",
+									"url",
+									"crawlTimeStart",
+									"crawlTimeEnd",
+									"status",
+									"sitesCrawled",
+									"links",
+									"title"
+								]
 							}
 						}
 					}
@@ -138,12 +408,36 @@
 							"application/json": {
 								"schema": {
 									"type": "string"
+								},
+								"example": "0c0b366987bb7eed7d17d62a"
+							}
+						}
+					},
+					"400": {
+						"description": "Invalid Mongo ID, Invalid JSON or Invalid execution without ID ",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								},
+								"example": {
+									"message": "Invalid execution without ID"
 								}
 							}
 						}
 					},
 					"500": {
-						"description": "Failed to create record"
+						"description": "Failed to execution",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								},
+								"example": {
+									"message": "Failed to create execution"
+								}
+							}
+						}
 					}
 				},
 				"tags": ["Executions"]
@@ -176,12 +470,51 @@
 											"type": "boolean"
 										}
 									}
+								},
+								"example": {
+									"success": true
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Invalid Mongo ID",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								},
+								"example": {
+									"message": "Invalid Mongo ID"
 								}
 							}
 						}
 					},
 					"404": {
-						"description": "No executions with this Website Record ID found."
+						"description": "Execution not found",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								},
+								"example": {
+									"message": "Execution not found"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Failed to delete executions",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								},
+								"example": {
+									"message": "Failed to delete executions"
+								}
+							}
+						}
 					}
 				},
 				"tags": ["Executions"]
@@ -201,6 +534,61 @@
 									"items": {
 										"$ref": "#/components/schemas/Execution"
 									}
+								},
+								"example": [
+									{
+										"id": "650c8ccdcf633bdd999a06db",
+										"ownerId": "0c0b366987bb7eed7d17d62a",
+										"groupId": 73696,
+										"root": true,
+										"url": "https://gleaming-cinnamon.info",
+										"crawlTimeStart": 3703845916,
+										"crawlTimeEnd": 3457210445,
+										"status": "running",
+										"sitesCrawled": 63651,
+										"links": [
+											"https://pesky-mandate.biz",
+											"https://blissful-means.com",
+											"https://incompatible-clarification.org",
+											"http://worried-yellowjacket.name",
+											"https://paltry-extreme.info",
+											"https://remorseful-north.org"
+										],
+										"title": "beatae aspernatur architecto"
+									},
+									{
+										"id": "650c8ccdcf633bdd999a06df",
+										"ownerId": "d8da55dff0afa59adb012aa6",
+										"groupId": 28339,
+										"root": true,
+										"url": "http://immense-skullduggery.info",
+										"crawlTimeStart": 2228907463,
+										"crawlTimeEnd": 1700541710,
+										"status": "failed",
+										"sitesCrawled": 16924,
+										"links": [
+											"https://charming-arithmetic.org",
+											"https://able-lycra.com",
+											"https://mellow-gasket.net",
+											"https://nautical-candy.org",
+											"https://appropriate-legislator.name",
+											"https://tubby-someone.biz"
+										],
+										"title": "rem officiis accusantium"
+									}
+								]
+							}
+						}
+					},
+					"500": {
+						"description": "Failed to get all website records",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								},
+								"example": {
+									"message": "Failed to get all website records"
 								}
 							}
 						}
@@ -209,7 +597,7 @@
 				"tags": ["Executions"]
 			}
 		},
-		"/api/executions?ownerId={ownerId}&ownerId={ownerId}": {
+		"/api/executions?ownerId={ownerId}&groupId={groupId}": {
 			"get": {
 				"summary": "Get a list of executions by group ID and owner ID",
 				"description": "Returns a list of executions filtered by group ID and owner ID.",
@@ -244,12 +632,71 @@
 									"items": {
 										"$ref": "#/components/schemas/Execution"
 									}
-								}
+								},
+								"example": [
+									{
+										"id": "650c8ccdcf633bdd999a073a",
+										"ownerId": "6508f6ee4b26a1bdf03bfd17",
+										"groupId": 1,
+										"root": false,
+										"url": "http://impeccable-job.org",
+										"crawlTimeStart": 4230765526,
+										"crawlTimeEnd": 557974387,
+										"status": "running",
+										"sitesCrawled": 36399,
+										"links": [],
+										"title": "illo atque molestias"
+									},
+									{
+										"id": "650c8ccdcf633bdd999a073b",
+										"ownerId": "6508f6ee4b26a1bdf03bfd17",
+										"groupId": 1,
+										"root": true,
+										"url": "https://rusty-vitamin.info",
+										"crawlTimeStart": 1624294880,
+										"crawlTimeEnd": 4194161358,
+										"status": "running",
+										"sitesCrawled": 81411,
+										"links": [
+											"http://polished-corn.com",
+											"http://hopeful-nondisclosure.name",
+											"http://serious-tilt.com",
+											"http://elaborate-guava.biz",
+											"http://agreeable-earth.info",
+											"https://keen-disclaimer.net",
+											"http://intelligent-shock.info"
+										],
+										"title": "necessitatibus numquam adipisci"
+									}
+								]
 							}
 						}
 					},
 					"400": {
-						"description": "groupId must be a number"
+						"description": "Invalid Mongo ID or Invalid group ID",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								},
+								"example": {
+									"message": "Invalid Mongo ID"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Failed to get all executions by owner ID and group ID",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								},
+								"example": {
+									"message": "Failed to get all executions by owner ID and group ID"
+								}
+							}
+						}
 					}
 				},
 				"tags": ["Executions"]
@@ -277,12 +724,62 @@
 							"application/json": {
 								"schema": {
 									"$ref": "#/components/schemas/WebsiteRecord"
+								},
+								"example": {
+									"id": "6508f8444cd2938211def95e",
+									"url": "https://yawning-yam.com",
+									"periodicity": {
+										"minutes": 19,
+										"hours": 0,
+										"days": 7
+									},
+									"regexp": "Solutions",
+									"label": "westernise East Avon",
+									"active": false,
+									"tags": ["repurpose", "bootie", "indigo"],
+									"latestGroupId": 345
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Invalid Mongo ID",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								},
+								"example": {
+									"message": "Invalid Mongo ID"
 								}
 							}
 						}
 					},
 					"404": {
-						"description": "No record with this ID found."
+						"description": "Website record not found",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								},
+								"example": {
+									"message": "Website record not found"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Failed to get website record",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								},
+								"example": {
+									"message": "Failed to get website record"
+								}
+							}
+						}
 					}
 				},
 				"tags": ["Website Records"]
@@ -307,7 +804,56 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "#/components/schemas/WebsiteRecord"
+								"type": "object",
+								"properties": {
+									"url": {
+										"type": "string"
+									},
+									"periodicity": {
+										"$ref": "#/components/schemas/Periodicity"
+									},
+									"regexp": {
+										"type": "string"
+									},
+									"label": {
+										"type": "string"
+									},
+									"active": {
+										"type": "boolean"
+									},
+									"tags": {
+										"type": "array",
+										"items": {
+											"type": "string"
+										}
+									},
+									"latestGroupId": {
+										"type": "integer",
+										"minimum": -1
+									}
+								},
+								"required": [
+									"url",
+									"periodicity",
+									"regexp",
+									"label",
+									"active",
+									"tags",
+									"latestGroupId"
+								]
+							},
+							"example": {
+								"url": "https://yawning-yam.com",
+								"periodicity": {
+									"minutes": 19,
+									"hours": 0,
+									"days": 7
+								},
+								"regexp": "Solutions",
+								"label": "westernise East Avon",
+								"active": true,
+								"tags": ["repurpose", "bootie", "indigo"],
+								"latestGroupId": 346
 							}
 						}
 					}
@@ -319,12 +865,62 @@
 							"application/json": {
 								"schema": {
 									"$ref": "#/components/schemas/WebsiteRecord"
+								},
+								"example": {
+									"id": "6508f8444cd2938211def95e",
+									"url": "https://yawning-yam.com",
+									"periodicity": {
+										"minutes": 19,
+										"hours": 0,
+										"days": 7
+									},
+									"regexp": "Solutions",
+									"label": "westernise East Avon",
+									"active": true,
+									"tags": ["repurpose", "bootie", "indigo"],
+									"latestGroupId": 346
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Invalid Mongo ID, Invalid JSON or Invalid website record without ID ",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								},
+								"example": {
+									"message": "Invalid Mongo ID"
 								}
 							}
 						}
 					},
 					"404": {
-						"description": "No record with this ID found."
+						"description": "Website record not found or no changes were made",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								},
+								"example": {
+									"message": "Website record not found or no changes were made"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Failed to update website record",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								},
+								"example": {
+									"message": "Failed to update website record"
+								}
+							}
+						}
 					}
 				},
 				"tags": ["Website Records"]
@@ -355,12 +951,51 @@
 											"type": "boolean"
 										}
 									}
+								},
+								"example": {
+									"success": true
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Invalid Mongo ID",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								},
+								"example": {
+									"message": "Invalid Mongo ID"
 								}
 							}
 						}
 					},
 					"404": {
-						"description": "No record with this ID found."
+						"description": "Website record not found",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								},
+								"example": {
+									"message": "Website record not found"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Failed to delete website record",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								},
+								"example": {
+									"message": "Failed to delete website record"
+								}
+							}
+						}
 					}
 				},
 				"tags": ["Website Records"]
@@ -376,7 +1011,43 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "#/components/schemas/WebsiteRecord"
+								"type": "object",
+								"properties": {
+									"url": {
+										"type": "string"
+									},
+									"periodicity": {
+										"$ref": "#/components/schemas/Periodicity"
+									},
+									"regexp": {
+										"type": "string"
+									},
+									"label": {
+										"type": "string"
+									},
+									"active": {
+										"type": "boolean"
+									},
+									"tags": {
+										"type": "array",
+										"items": {
+											"type": "string"
+										}
+									},
+									"latestGroupId": {
+										"type": "integer",
+										"minimum": -1
+									}
+								},
+								"required": [
+									"url",
+									"periodicity",
+									"regexp",
+									"label",
+									"active",
+									"tags",
+									"latestGroupId"
+								]
 							}
 						}
 					}
@@ -388,12 +1059,36 @@
 							"application/json": {
 								"schema": {
 									"type": "string"
+								},
+								"example": "6508f8444cd2938211def95e"
+							}
+						}
+					},
+					"400": {
+						"description": "Invalid JSON or Invalid website record without ID ",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								},
+								"example": {
+									"message": "Invalid website record without ID"
 								}
 							}
 						}
 					},
 					"500": {
-						"description": "Failed to create record"
+						"description": "Failed to create website record",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								},
+								"example": {
+									"message": "Failed to create website record"
+								}
+							}
+						}
 					}
 				},
 				"tags": ["Website Records"]
@@ -413,6 +1108,49 @@
 									"items": {
 										"$ref": "#/components/schemas/WebsiteRecord"
 									}
+								},
+								"example": [
+									{
+										"id": "6508f8444cd2938211def95e",
+										"url": "https://yawning-yam.com",
+										"periodicity": {
+											"minutes": 19,
+											"hours": 0,
+											"days": 7
+										},
+										"regexp": "Solutions",
+										"label": "westernise East Avon",
+										"active": false,
+										"tags": ["repurpose", "bootie", "indigo"],
+										"latestGroupId": 346
+									},
+									{
+										"id": "6508f8444cd2938211def962",
+										"url": "https://elastic-glee.biz",
+										"periodicity": {
+											"minutes": 57,
+											"hours": 13,
+											"days": 0
+										},
+										"regexp": "orchid",
+										"label": "SMTP Producer",
+										"active": true,
+										"tags": ["corkscrew", "clinking", "bypassing"],
+										"latestGroupId": 451
+									}
+								]
+							}
+						}
+					},
+					"500": {
+						"description": "Failed to get all website records",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								},
+								"example": {
+									"message": "Failed to get all website records"
 								}
 							}
 						}
@@ -424,6 +1162,15 @@
 	},
 	"components": {
 		"schemas": {
+			"Error": {
+				"type": "object",
+				"properties": {
+					"message": {
+						"type": "string"
+					}
+				},
+				"required": ["message"]
+			},
 			"Periodicity": {
 				"type": "object",
 				"properties": {
@@ -496,16 +1243,14 @@
 						"type": "string"
 					},
 					"crawlTimeStart": {
-						"type": "string",
-						"format": "date-time"
+						"type": "integer"
 					},
 					"crawlTimeEnd": {
-						"type": "string",
-						"format": "date-time"
+						"type": "integer"
 					},
 					"status": {
 						"type": "string",
-						"enum": ["success", "failed", "running"]
+						"enum": ["success", "failed", "running", "queued"]
 					},
 					"sitesCrawled": {
 						"type": "integer",
@@ -521,7 +1266,18 @@
 						"type": "string"
 					}
 				},
-				"required": ["ownerId", "groupId", "root", "url", "crawlTimeStart", "crawlTimeEnd", "status", "sitesCrawled", "links", "title"]
+				"required": [
+					"ownerId",
+					"groupId",
+					"root",
+					"url",
+					"crawlTimeStart",
+					"crawlTimeEnd",
+					"status",
+					"sitesCrawled",
+					"links",
+					"title"
+				]
 			}
 		}
 	}
