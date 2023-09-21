@@ -8,6 +8,13 @@ services:
     volumes:
       - ./web_app:/app
       - /app/node_modules
+  crawler:
+    build: ./crawler
+    ports:
+      - 5000:5000
+    volumes:
+      - ./crawler:/app
+      - /app/node_modules
   mongodb:
     image: mongo
     ports:
