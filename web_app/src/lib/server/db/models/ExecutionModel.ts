@@ -48,7 +48,7 @@ export default class ExecutionModel extends Model<Execution> {
 		} catch (error) {
 			return {
 				code: 500,
-				message: error
+				message: 'Failed to create execution'
 			} as Error;
 		}
 	}
