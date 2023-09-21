@@ -6,6 +6,13 @@ export default class WebsiteRecordModel extends Model<WebsiteRecord> {
 	collection: Collection = db.collection('webpage_records');
 	async create(websiteRecord: WebsiteRecord): Promise<ObjectId | Error> {
 		try {
+			if (!isWebsiteRecordWithoutId(websiteRecord)) {
+				return {
+					code: 400,
+					message: 'Invalid website record without ID'
+				} as Error;
+			}
+
 			const result = await this.collection.insertOne(websiteRecord);
 			return result.insertedId;
 		} catch (error) {
