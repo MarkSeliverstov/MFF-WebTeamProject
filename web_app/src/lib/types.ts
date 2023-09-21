@@ -16,6 +16,14 @@ export interface Periodicity {
 	days: number;
 }
 
+export function isPeriodicity(obj: unknown): obj is Periodicity {
+	if (obj && typeof obj === 'object' && 'minutes' in obj && 'hours' in obj && 'days' in obj && Object.keys(obj).length === 3) {
+		const periodicity = obj as Periodicity;
+		return typeof periodicity.minutes === 'number' && typeof periodicity.hours === 'number' && typeof periodicity.days === 'number';
+	}
+	return false;
+}
+
 export interface WebsiteRecord {
 	id?: ObjectId
 	url: string;
@@ -25,6 +33,14 @@ export interface WebsiteRecord {
 	active: boolean;
 	tags: string[];
 	latestGroupId: number; // Latest group id that was assigned for execution
+}
+
+export function isWebsiteRecordWithoutId(obj: unknown): obj is WebsiteRecord {
+	if (obj && typeof obj === 'object' && 'url' in obj && 'periodicity' in obj && 'regexp' in obj && 'label' in obj && 'active' in obj && 'tags' in obj && 'latestGroupId' in obj && Object.keys(obj).length === 7) {
+		const websiteRecord = obj as WebsiteRecord;
+		return typeof websiteRecord.url === 'string' && isPeriodicity(websiteRecord.periodicity) && typeof websiteRecord.regexp === 'string' && typeof websiteRecord.label === 'string' && typeof websiteRecord.active === 'boolean' && (Array.isArray(websiteRecord.tags) && websiteRecord.tags.every((tag) => typeof tag === 'string')) && typeof websiteRecord.latestGroupId === 'number';
+	}
+	return false;
 }
 
 // Represents a single web page of a crawling proccess
