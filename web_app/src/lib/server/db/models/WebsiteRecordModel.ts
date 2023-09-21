@@ -1,4 +1,4 @@
-import { Model, type WebsiteRecord, type Error } from '$lib/types';
+import { Model, type WebsiteRecord, type Error, isWebsiteRecordWithoutId } from '$lib/types';
 import { type Collection, ObjectId } from 'mongodb';
 import db from '$db/database';
 
@@ -59,36 +59,27 @@ export default class WebsiteRecordModel extends Model<WebsiteRecord> {
 				} as Error;
 			}
 
-			if(typeof updatedItem !== 'object') {
+			if(!isWebsiteRecordWithoutId(updatedItem)) {
 				return {
 					code: 400,
-					message: 'Invalid request body(must be an object)'
+					message: 'Invalid website record without ID'
 				} as Error;
 			}
 
-			const requiredFields = ['url', 'periodicity', 'regexp', 'label', 'active', 'tags', 'latestGroupId'];
-
-			const hasAllRequiredFields = requiredFields.every((field) => field in updatedItem);
-			const hasNoExtraField = Object.keys(updatedItem).length === requiredFields.length;
-
-			if (!hasAllRequiredFields || !hasNoExtraField) {
-				return {
-					code: 400,
-					message: 'Invalid request body(required field missing or extra field present)'
-				} as Error;
-			}
-			
 			const result = await this.collection.updateOne(
 				{ _id: new ObjectId(id) },
 				{ $set: updatedItem }
 			);
 
 			if (result.modifiedCount > 0) {
-				return updatedItem;
+				return {
+					id: new ObjectId(id),
+					...updatedItem
+				} as WebsiteRecord;
 			}
 			return {
 				code: 404,
-				message: 'Website record not found'
+				message: 'Website record not found or no changes were made'
 			} as Error;
 		} catch (error) {
 			return {
