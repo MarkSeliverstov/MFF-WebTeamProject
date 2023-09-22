@@ -4,7 +4,7 @@ import axios from 'axios';
 
 
 import { CrowledWebPage } from "../types";
-import { WorkerProgress } from "../worker";
+import { WorkerProgress } from "./types";
 
 
 export class Crawler{

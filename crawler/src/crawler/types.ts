@@ -5,20 +5,36 @@ export enum Command {
     ABORT
 }
 
+export enum State{
+    BUSY,
+    FREE
+}
+
 export enum Progress {
     DONE,
     FAILED,
     PROGRESS
 }
 
-export type WorkerTask = {
+export type CrawlerTask = {
     url: string,
-    regex: string
+    regex: string,
+}
+
+export type Task = {
+    crawlerTask : CrawlerTask
+    startCallBack: () => void
+    progressCallBack: (progress: WorkerProgress) => void
+    reject: (reason? : any) => void
+}
+
+export type TaskResult = {
+    test: string
 }
 
 export type WorkerCommand = {
 	command: Command.RUN
-	task: WorkerTask;
+	task: CrawlerTask;
 } | {
 	command: Command.ABORT
 };

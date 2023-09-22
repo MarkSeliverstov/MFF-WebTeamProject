@@ -2,10 +2,10 @@ import express from "express";
 import {
     startCrawling,
     stopCrawling
-} from "./crawlerController";
+} from "./controller";
 
 
 export const router = express.Router();
 
-router.post("/crawling/start/:id", startCrawling);
-router.post("/crawling/abort/:id", stopCrawling);
+router.post("/crawler/start/:id", startCrawling);
+router.post("/crawler/abort/:id", stopCrawling);
