@@ -1,6 +1,6 @@
 version: '3.9'
 services:
-  app-dev:
+  web-app:
     build: ./web_app
     ports:
       - 5050:5173
@@ -13,7 +13,7 @@ services:
     ports:
       - 5000:5000
     volumes:
-      - ./crawler:/app
+      - ./crawler/src:/app/src
       - /app/node_modules
   mongodb:
     image: mongo
