@@ -34,8 +34,8 @@
 		}
 	},
 
-	// 5050: Web, 8080: Mongo Express, 27017: Mongo, 24678: Hot Reload
-	"forwardPorts": [5050, 8080, 27017, 24678],
+	// 5000: Crawler, 5050: Web, 8080: Mongo Express, 27017: Mongo, 24678: Hot Reload
+	"forwardPorts": [5000, 5050, 8080, 27017, 24678],
 
 	"postCreateCommand": "docker compose up -d"
 }
