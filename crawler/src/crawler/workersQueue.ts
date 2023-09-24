@@ -28,9 +28,9 @@ export class WorkerQueue{
 
     /** Try to run task if exists task and free worker */
     public TryRunTask(){
-        console.log("(Worker queue) Try to run next task");
         const freeWorker = this.workers.find((w: WorkerHandler) => w.GetState() == State.FREE);
         if (freeWorker !== undefined){
+            console.log("(Worker queue) Found free worker, try to run next task");
             const task = this.taskQueue.shift();
             
             if (task !== undefined){
@@ -48,7 +48,6 @@ export class WorkerQueue{
             console.log("(Worker queue) Queue of tasks is empty");
             return;
         }
-        console.log("(Worker queue) All workers are busy");
     }
 
     public async AbortTask(recordId: string){
