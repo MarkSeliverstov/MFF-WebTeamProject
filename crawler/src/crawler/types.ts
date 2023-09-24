@@ -1,4 +1,4 @@
-import { CrowledWebPage } from "../types";
+import { Execution } from "../db";
 
 export enum Command {
     RUN,
@@ -17,15 +17,9 @@ export enum Progress {
 }
 
 export type CrawlerTask = {
+    recordId: string,
     url: string,
     regex: string,
-}
-
-export type Task = {
-    crawlerTask : CrawlerTask
-    startCallBack: () => void
-    progressCallBack: (progress: WorkerProgress) => void
-    reject: (reason? : any) => void
 }
 
 export type TaskResult = {
@@ -41,17 +35,8 @@ export type WorkerCommand = {
 
 export type WorkerResponse = {
     status: Progress.DONE
-    result: CrowledWebPage[]
+    result: number
 } | {
     status: Progress.FAILED,
     error: string | null
-} | {
-    status: Progress.PROGRESS
-    progress: WorkerProgress
-}
-
-export type WorkerProgress = {
-    crawled: number;
-    total: number,
-    webPages: CrowledWebPage[]
 }

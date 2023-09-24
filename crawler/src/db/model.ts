@@ -5,7 +5,7 @@ export interface Periodicity {
 }
 
 export interface WebsiteRecord {
-	id: string;
+	id?: string;
 	url: string;
 	periodicity: Periodicity;
 	regexp: string;
@@ -26,7 +26,7 @@ export enum ExecutionSatus {
 // Represents a single web page of a crawling proccess
 // Uniquely identified by the url, ownerId and groupId
 export interface Execution {
-	id: string; // Id for mongo reasons
+	id?: string; // Id for mongo reasons
 	ownerId: string; // Points to the website record where the crawling started
 	groupId: number; // Belongs to all the pages that were crawled in the same crawling proccess
 	root: boolean; // Start page of crawling
