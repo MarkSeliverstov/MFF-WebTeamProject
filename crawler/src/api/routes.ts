@@ -7,5 +7,5 @@ import {
 
 export const router = express.Router();
 
-router.post("/crawler/start/:id", startCrawling);
-router.post("/crawler/abort/:id", stopCrawling);
+router.get("/crawler/start/:id", startCrawling);
+router.get("/crawler/abort/:id", stopCrawling);
