@@ -1,4 +1,4 @@
-import { WebsiteRecord, Execution, ExecutionSatus } from "./model";
+import { WebsiteRecord, Execution, PreparedExecution, PreparedWebsiteRecord } from './model';
 import { BasicMongoUrl } from "../config";
 import fetch from "node-fetch";
 
@@ -32,17 +32,18 @@ async function executeFetch(apiUrl: string, method: fetchMethod, body: object | 
     if (body){
         response = await fetch(`${BasicMongoUrl}${apiUrl}`,{
             method:method,
-            body:JSON.stringify(body)
+            body:JSON.stringify(body),
+            headers: {'Content-Type': 'application/json'}
         });
         if (response.status !== 200){
-            throw new Error(`Error when execute fetch to the db with URL: ${BasicMongoUrl}${apiUrl}, METHOD: ${method} and BODY: ${JSON.stringify(body)}`);
+            throw new Error(`Error when execute fetch to the db with URL: ${BasicMongoUrl}${apiUrl}, METHOD: ${method} and BODY: ${JSON.stringify(body)}, status code: ${response.status}`);
         }
     } else {
         response = await fetch(`${BasicMongoUrl}${apiUrl}`,{
             method:method,
         });
         if (response.status !== 200){
-            throw new Error(`Error when execute fetch to the db with URL: ${BasicMongoUrl}${apiUrl}, METHOD: ${method}`);
+            throw new Error(`Error when execute fetch to the db with URL: ${BasicMongoUrl}${apiUrl}, METHOD: ${method}, status code: ${response.status}`);
         }
     }
     return await response.json();
@@ -55,27 +56,30 @@ export async function getRecordByID(id: string): Promise<any>{
         return executeFetch(recordWithIdUrl(id), fetchMethod.GET);
     }
     catch (error) {
-        throw new Error("Error in getRecordByID");
+        console.error(`(db api) Error in getRecordByID: ${error}`);
     }
 }
 
 
 export async function updateRecord(record: WebsiteRecord) {
     try{
-    executeFetch(recordWithIdUrl(record.id), fetchMethod.PUT, record);
+        const id  = record.id!;
+        record.id = undefined;
+        executeFetch(recordWithIdUrl(record.id), fetchMethod.PUT, record);
+        record.id = id;
     }
-    catch (error ) {
-        throw new Error("Error in updateRecord");
+    catch (error) {
+        console.error(`(db api) Error in updateRecord: ${error}`);
     }
 }
 
 
 export async function deleteRecord(record: WebsiteRecord) {
     try{
-    executeFetch(recordWithIdUrl(record.id), fetchMethod.DEL);
+        executeFetch(recordWithIdUrl(record.id), fetchMethod.DEL);
     }
     catch (error) {
-        throw new Error("Error in deleteRecord");
+        console.error(`(db api) Error in deleteRecord: ${error}`);
     }
 }
 
@@ -96,7 +100,7 @@ export async function getExecutionByID(id: string): Promise<any>{
 }
 
 export async function updateExecution(exe: Execution) {
-    executeFetch(executionWithIdUrl(exe.id), fetchMethod.PUT, exe);
+    executeFetch(executionWithIdUrl(exe.id), fetchMethod.PUT, exe as unknown as PreparedExecution);
 }
 
 export async function deleteExecution(exe: Execution) {
