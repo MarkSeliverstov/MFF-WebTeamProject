@@ -8,9 +8,9 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc -p ./tsconfig.json --es-module-specifier-resolution=node",
+    "build": "tsc -p ./tsconfig.json",
     "start": "node --enable-source-maps build/index.js",
-    "buildAndStart": "tsc -p ./tsconfig.json && node --es-module-specifier-resolution=node --enable-source-maps build/index.js",
+    "buildAndStart": "tsc -p ./tsconfig.json && node --experimental-specifier-resolution=node --enable-source-maps build/index.js",
     "lint": "eslint src --ext .ts --fix"
   },
   "devDependencies": {
@@ -29,8 +29,6 @@
     "cheerio": "^1.0.0-rc.12",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
-    "express-graphql": "^0.12.0",
-    "node-fetch": "^3.3.2",
-    "puppeteer": "^20.5.0"
+    "node-fetch": "^3.3.2"
   }
 }

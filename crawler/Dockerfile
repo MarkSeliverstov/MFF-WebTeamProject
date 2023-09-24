@@ -1,7 +1,7 @@
-FROM node:latest
+FROM node:16
 
 WORKDIR /app
-COPY package.json tsconfig.json /app/
+COPY . /app/
 COPY src /app/src
 
 RUN npm install &&\
@@ -10,4 +10,4 @@ RUN npm install &&\
 
 EXPOSE 5000
 
-CMD ["node", "--enable-source-maps", "--no-warnings", "build/index.js"]
+CMD ["node", "--enable-source-maps", "--experimental-specifier-resolution=node", "build/index.js"]
