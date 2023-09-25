@@ -84,8 +84,9 @@ const resolvers = {
 									);
 
 									if (!next_execution) {
-										throw new Error('No next execution found');
-									}
+                                        continue;
+                                    }
+
 									nodes.push({
 										title: next_execution.title,
 										url: next_execution.url,
