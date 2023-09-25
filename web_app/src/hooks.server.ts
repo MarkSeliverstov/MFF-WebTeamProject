@@ -16,7 +16,7 @@ export const handle: Handle = async ({ resolve, event }) => {
 			return new Response(null, {
 				headers: {
 					'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE',
-					'Access-Control-Allow-Origin': 'http://localhost:5000',
+					'Access-Control-Allow-Origin': '*',
 					'Access-Control-Allow-Headers': '*'
 				}
 			});
@@ -25,7 +25,7 @@ export const handle: Handle = async ({ resolve, event }) => {
 
 	const response = await resolve(event);
 	if (event.url.pathname.startsWith('/api')) {
-		response.headers.append('Access-Control-Allow-Origin', `http://localhost:5000`);
+		response.headers.append('Access-Control-Allow-Origin', `*`);
 	}
 	return response;
 };
