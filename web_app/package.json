@@ -14,6 +14,7 @@
 		"generate_docs": "redocly build-docs swaggerSpecification.json --output=swagger.html"
 	},
 	"devDependencies": {
+		"@redocly/cli": "^1.2.0",
 		"@sveltejs/adapter-auto": "^2.0.0",
 		"@sveltejs/kit": "^1.22.4",
 		"@types/cytoscape": "^3.19.10",
@@ -34,7 +35,6 @@
 	},
 	"type": "module",
 	"dependencies": {
-		"@redocly/cli": "^1.1.0",
 		"@sveltejs/adapter-node": "^1.0.0-next.106",
 		"cytoscape": "^3.2.0",
 		"cytoscape-popper": "^2.0.0",
