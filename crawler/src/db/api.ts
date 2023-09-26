@@ -1,5 +1,5 @@
 import { WebsiteRecord, Execution, PreparedExecution, PreparedWebsiteRecord } from './model';
-import { BASIC_MONGO_URL } from "../config";
+import { BASIC_APP_URL } from "../config";
 import fetch from "node-fetch";
 
 /** Fetching */
@@ -29,20 +29,20 @@ const executionWithIdUrl = (id: string | undefined) => {
 async function executeFetch(apiUrl: string, method: fetchMethod, body: object | null = null) {
     let response;
     if (body){
-        response = await fetch(`${BASIC_MONGO_URL}${apiUrl}`,{
+        response = await fetch(`${BASIC_APP_URL}${apiUrl}`,{
             method:method,
             body:JSON.stringify(body),
             headers: {'Content-Type': 'application/json'}
         });
         if (response.status !== 200){
-            throw new Error(`Error when execute fetch to the db with URL: ${BASIC_MONGO_URL}${apiUrl}, METHOD: ${method} and BODY: ${JSON.stringify(body)}, status code: ${response.status}`);
+            throw new Error(`Error when execute fetch to the db with URL: ${BASIC_APP_URL}${apiUrl}, METHOD: ${method} and BODY: ${JSON.stringify(body)}, status code: ${response.status}`);
         }
     } else {
-        response = await fetch(`${BASIC_MONGO_URL}${apiUrl}`,{
+        response = await fetch(`${BASIC_APP_URL}${apiUrl}`,{
             method:method,
         });
         if (response.status !== 200){
-            throw new Error(`Error when execute fetch to the db with URL: ${BASIC_MONGO_URL}${apiUrl}, METHOD: ${method}, status code: ${response.status}`);
+            throw new Error(`Error when execute fetch to the db with URL: ${BASIC_APP_URL}${apiUrl}, METHOD: ${method}, status code: ${response.status}`);
         }
     }
     return await response.json();
