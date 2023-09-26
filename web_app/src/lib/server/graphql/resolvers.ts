@@ -12,7 +12,7 @@ const resolvers = {
 	Query: {
 		websites: async () => {
 			try {
-				const response = await fetch('http://localhost:5173/api/records');
+				const response = await fetch('http://localhost:3000/api/records');
 				const records = await response.json();
 				return records.map((record: WebsiteRecord) => {
 					return {
@@ -47,7 +47,7 @@ const resolvers = {
 
 			try {
 				for (const id of convertedIDs) {
-					const record_response = await fetch(`http://localhost:5173/api/record/${id}`);
+					const record_response = await fetch(`http://localhost:3000/api/record/${id}`);
 					const record = await record_response.json();
                     // throw new Error(JSON.stringify(record, null, 2));
 					if (record) {
@@ -63,7 +63,7 @@ const resolvers = {
 						const id = record.id;
 						const group = record.latestGroupId;
 						const group_response = await fetch(
-							`http://localhost:5173/api/executions?ownerId=${id}&groupId=${group}`
+							`http://localhost:3000/api/executions?ownerId=${id}&groupId=${group}`
 						);
 						const group_data = await group_response.json();
 						if (Array.isArray(group_data)) {
