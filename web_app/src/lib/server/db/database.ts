@@ -1,7 +1,6 @@
 import { MongoClient } from 'mongodb';
-import { MONGO_URL } from '$env/static/private'
 
-const client: MongoClient = new MongoClient(MONGO_URL);
+const client: MongoClient = new MongoClient("mongodb://test:test1234@mongodb:27017/webapp");
 
 export function startDatabase() : Promise<MongoClient>{
   console.log("Connecting to database");
