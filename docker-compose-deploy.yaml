@@ -1,12 +1,16 @@
 version: '3.9'
 services:
-  app-deploy:
+  web-app:
     build:
       context: ./web_app
       dockerfile: Dockerfile-deploy
       target: deploy
     ports: 
-      - 5051:3000
+      - 3000:3000
+  crawler:
+    build: ./crawler
+    ports:
+    - 5000:5000
   mongodb:
     image: mongo
     ports:

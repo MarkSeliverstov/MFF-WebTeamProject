@@ -1,19 +1,28 @@
 FROM node:20 AS build
 
 WORKDIR /app
+
 COPY svelte.config.js vite.config.ts tsconfig.json ./
 COPY package.json package-lock.json ./
 RUN npm install
+
+COPY swaggerSpecification.json ./
+RUN npm run generate_docs
+RUN mkdir src
+RUN mv swagger.html /app/src/
+
 COPY static ./static
 COPY src ./src
+
 RUN npm run build
 
 
 FROM node:20 as deploy
 
 WORKDIR /app
-#needed for modules to work
-COPY --from=build /app/package.json .
+COPY --from=build /app/package.json /app/package-lock.json ./
+RUN npm install --omit=dev
+
 
 COPY --from=build /app/build .
 CMD [ "node", "index.js" ]
