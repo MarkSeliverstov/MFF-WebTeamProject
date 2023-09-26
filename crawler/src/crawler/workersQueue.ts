@@ -7,6 +7,12 @@ export class WorkerQueue{
     private workers: WorkerHandler[] = [];
     private taskQueue: CrawlerTask[] = [];
 
+    public existTask(recordId: string): boolean{
+        const task = this.taskQueue.find((t) => t.recordId === recordId);
+        if (task) return true;
+        return false;
+    }
+
     constructor(workersCount: number){
         for (let i = 0; i < workersCount; i++) {
             this.workers.push(new WorkerHandler());
@@ -28,9 +34,9 @@ export class WorkerQueue{
 
     /** Try to run task if exists task and free worker */
     public TryRunTask(){
-        console.log("(Worker queue) Try to run next task");
         const freeWorker = this.workers.find((w: WorkerHandler) => w.GetState() == State.FREE);
         if (freeWorker !== undefined){
+            console.log("(Worker queue) Found free worker, try to run next task");
             const task = this.taskQueue.shift();
             
             if (task !== undefined){
@@ -48,18 +54,29 @@ export class WorkerQueue{
             console.log("(Worker queue) Queue of tasks is empty");
             return;
         }
-        console.log("(Worker queue) All workers are busy");
     }
 
     public async AbortTask(recordId: string){
         console.log(`(Worker queue) Aborting execution for record id: ${recordId}`);
         const task = this.taskQueue.find((t) => t.recordId === recordId);
         if (task){
+            console.log("Found task");
             this.Remove(task);
         } else {
-            const worker = this.workers.find((w) => w.GetTaskExecutionUrl() === recordId);
+            console.log("Not Found task");
+            const worker = this.workers.find((w) => w.GetTaskExecutionRecordId() === recordId);
+            console.log("Aborting worker");
             if (worker) worker.Abort();
         }
         console.log(`(Worker queue) Record execution with record id: ${recordId} was aborted`);
+    }
+
+    public async AbortAllTasks(){
+        for (const worker of this.workers){
+            if (worker.GetState() == State.BUSY){
+                console.log(`(Worker Queue) Stopping worker id:${worker.GetId()} ...`);
+                await worker.Shutdown();
+            }
+        }
     }
 }

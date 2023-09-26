@@ -1,4 +1,5 @@
-FROM node:16
+FROM node:16-alpine
+RUN apk add dumb-init
 
 WORKDIR /app
 
@@ -6,7 +7,9 @@ COPY .env tsconfig.json ./
 COPY package.json package-lock.json ./
 RUN npm install
 
-COPY src ./src
+COPY ./src ./src
+RUN npm run build
 
 EXPOSE 5000
-CMD [ "npm", "run", "buildAndStart" ]
+
+CMD ["dumb-init", "node", "--experimental-specifier-resolution=node", "--enable-source-maps", "build/index.js"]

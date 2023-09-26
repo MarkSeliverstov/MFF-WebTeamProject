@@ -9,9 +9,10 @@ export class WorkerHandler {
     private rejectTask!: (reaason?: any) => void;
 
     public GetState(): State {return this.state;}
-    public GetTaskExecutionUrl(): string | null {
+    public GetId(): State {return this.worker.threadId;}
+    public GetTaskExecutionRecordId(): string | null {
         if (this.task)
-            return this.task.url;
+            return this.task.recordId;
         else
             return null;
     }
@@ -57,11 +58,16 @@ export class WorkerHandler {
             const workerCmd: WorkerCommand = {
                 command: Command.ABORT
             };
+            console.log("in the worker handler post abort message");
             this.worker.postMessage(workerCmd);
             this.task = null;
         }
         else {
-            throw new Error(`(Worker Handler) Failed to abort crawler ${this.worker.threadId} - worker haven't task`)
+            throw new Error(`(Worker Handler) Failed to abort crawler ${this.worker.threadId} - worker haven't task`);
         }
+    }
+
+    public async Shutdown(){
+        await this.worker.terminate();
     }
 }

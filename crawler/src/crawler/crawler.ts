@@ -6,10 +6,12 @@ import * as db from "../db/api";
 
 import { CrowledWebPage } from "../types";
 import { CrawlerTask } from "./types";
-import { Execution, ExecutionSatus } from "../db/model";
+import { Execution, ExecutionStatus } from "../db/model";
+import { threadId } from "worker_threads";
 
 
 export class Crawler{
+	private seenRoot = false;
 	private groupId!: number;
 	private recordId!: string;
 	private rootExecution!: Execution;
@@ -21,6 +23,7 @@ export class Crawler{
 	private currentCrawlingWebPage?: CrowledWebPage;	
 	// Set of seen links
 	private seenPages = new Set<string>;
+	private isAborted = false;
 
 	private getTotalCrawledCount() {return this.crawledPages.length + this.pagesToCrawl.length;}
 
@@ -69,9 +72,9 @@ export class Crawler{
 		};
 	}
 
-	private async createExecution(page: CrowledWebPage, root: boolean): Promise<void>{
+	private async createExecution(page: CrowledWebPage): Promise<void>{
 		const title = (page.title) ? page.title : "";
-		const status = (page.status === "done") ? ExecutionSatus.SUCCESS : ExecutionSatus.FAILED;
+		const status = (page.status === "done") ? ExecutionStatus.SUCCESS : ExecutionStatus.FAILED;
 		const newExecution: Execution = {
 			url: page.url,
 			title: title,
@@ -81,32 +84,38 @@ export class Crawler{
 			groupId: this.groupId,
 			ownerId: this.recordId,
 			sitesCrawled: page.links.length,
-			root: root,
+			root: !this.seenRoot,
 			status: status,
 		};
-		if (root){
-			newExecution.status = ExecutionSatus.RUNNING;
-			await db.createExecution(newExecution);
+		if (!this.seenRoot){
+			newExecution.status = ExecutionStatus.RUNNING;
+			this.seenRoot = true;
+			newExecution.id = await db.createExecution(newExecution);
 			this.rootExecution = newExecution;
-		} else
+		} else{
 			await db.createExecution(newExecution);
+			this.rootExecution.sitesCrawled = this.crawledPages.length;
+			await db.updateExecution(this.rootExecution);
+		}
 	}
 
 	// Function to start the crawling process
 	public async StartCrawling(task: CrawlerTask) : Promise<number>{
 		this.recordId = task.recordId;
 		const record = await db.getRecordByID(this.recordId);
-		this.groupId = record.latestGroupId + 1;
+		record.latestGroupId++;
+		this.groupId = record.latestGroupId;
 		await db.updateRecord(record);
+
 		const baseUrl = task.url;
 		const regex = RegExp(task.regex);
-		let seenRoot = false;
 
 		// Initialize the first crawling page
 		this.pagesToCrawl.push(this.initCrawlingWebPage(baseUrl));
 
-		console.log(`(crawler ${process.pid}) Crawling starting`);
+		console.log(`(Crawler ${threadId}) Starting crawling ${this.recordId} record`);
 		while(this.pagesToCrawl.length !== 0){
+			if (this.isAborted) break;
 			this.currentCrawlingWebPage = this.pagesToCrawl.shift();
 			if (this.currentCrawlingWebPage === undefined) continue;
 
@@ -118,21 +127,22 @@ export class Crawler{
 			// If the current page's URL doesn't match the regex, continue to the next iteration
 			if (!regex.test(this.currentCrawlingWebPage.url)){
 				console.log(
-					`(crawler ${process.pid}) Invalid URL: ${this.currentCrawlingWebPage.url}, `+
+					`(Crawler ${threadId}) Dont match to regex (${task.regex}): ${this.currentCrawlingWebPage.url}, `+
 					`current progress: ${this.crawledPages.length}/${this.getTotalCrawledCount()}`
 				);
 				this.currentCrawlingWebPage.crawlTimeEnd = Date.now();
 				this.currentCrawlingWebPage.status = "failed";
 				this.crawledPages.push(this.currentCrawlingWebPage);
-				this.createExecution(this.currentCrawlingWebPage, !seenRoot);
+				await this.createExecution(this.currentCrawlingWebPage);
 				continue;
 			}
 
 			try{
 				// Fetch the page and add its URL to the seen links
 				const html = await this.fetchPage(this.currentCrawlingWebPage.url);
+				
 				console.log(
-					`(crawler ${process.pid}) Crawling ${this.currentCrawlingWebPage.url}, `+
+					`(Crawler ${threadId}) Crawling ${this.currentCrawlingWebPage.url}, `+
 					`current progress: ${this.crawledPages.length}/${this.getTotalCrawledCount()}`
 				);
 
@@ -157,27 +167,29 @@ export class Crawler{
 				this.currentCrawlingWebPage.status = "failed";
 				this.crawledPages.push(this.currentCrawlingWebPage);
 				console.log(
-					`(crawler ${process.pid}) Crawling failed ${this.currentCrawlingWebPage.url}, `+
+					`(Crawler ${threadId}) Crawling failed ${this.currentCrawlingWebPage.url}, `+
 					`current progress: ${this.crawledPages.length}/${this.getTotalCrawledCount()}, ${error}`
 				);
 			} finally {
 				this.currentCrawlingWebPage.crawlTimeEnd = Date.now();
-				this.createExecution(this.currentCrawlingWebPage, !seenRoot);
-				seenRoot = true;
+				await this.createExecution(this.currentCrawlingWebPage);
 				// Calculate the time spent crawling the current page
 				const crawlTime = this.currentCrawlingWebPage.crawlTimeEnd - this.currentCrawlingWebPage.crawlTimeStart;
-				console.log(`(crawler ${process.pid}) Time spent crawling ${this.currentCrawlingWebPage.url}: ${crawlTime} ms`);
+				// console.log(`(crawler ${threadId}) Time spent crawling ${this.currentCrawlingWebPage.url}: ${crawlTime} ms`);
 			}
 		}
 
-		console.log(`(crawler ${process.pid}) Crawling finished, total pages crawled: ${this.crawledPages.length}`);
-		// this.rootExecution.status = ExecutionSatus.SUCCESS;
-		// this.rootExecution.crawlTimeEnd = Date.now();
-		// await db.updateExecution(this.rootExecution);
+		console.log(`(Crawler ${threadId}) Crawling finished, total pages crawled: ${this.crawledPages.length}`);
+		this.rootExecution.status = ExecutionStatus.SUCCESS;
+		if (this.isAborted) this.rootExecution.status = ExecutionStatus.FAILED;
+		this.rootExecution.crawlTimeEnd = Date.now();
+		this.rootExecution.sitesCrawled = this.crawledPages.length;
+		await db.updateExecution(this.rootExecution);
 		return this.crawledPages.length;
 	}
 
 	public abort(): void {
-		throw new Error(`(crawler ${process.pid}) Crawler was aborted, total pages crawled: ${this.crawledPages.length}`);
+		console.log(`(Crawler ${threadId}) Crawling aborting...`);
+		this.isAborted = true;
 	}
 }

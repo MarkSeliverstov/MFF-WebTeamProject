@@ -1,5 +1,4 @@
 import { Crawler } from "./crawler";
-import { CrowledWebPage } from "../types";
 import { 
     Command, 
     Progress, 
@@ -7,7 +6,7 @@ import {
     WorkerResponse, 
     CrawlerTask 
 } from "./types";
-import { isMainThread, parentPort } from "worker_threads";
+import { parentPort, threadId } from "worker_threads";
 
 
 
@@ -20,16 +19,16 @@ async function RunTask(task: CrawlerTask): Promise<number> {
 
 
 // Managment of each worker
-console.log(`Init Crawler Worker [${process.ppid}]`);
+console.log(`(Worker ${threadId}) Init Crawler Worker`);
 let currentCrawler: Crawler | null;
 
 
 parentPort?.on("message", (msg: WorkerCommand) => {
     if (msg.command === Command.RUN) {
-        console.log(`(crawler ${process.pid}) Started crawling`);
+        // console.log(`(Crawler Worker ${threadId}) Started crawling`);
         RunTask(msg.task)
         .then((result) => {
-            console.log(`[crawler ${process.pid}] Running finished`);
+            console.log(`(crawler ${threadId}) Running finished`);
             const response: WorkerResponse = {
                 status: Progress.DONE,
                 result: result
@@ -37,7 +36,7 @@ parentPort?.on("message", (msg: WorkerCommand) => {
             parentPort?.postMessage(response);
         })
         .catch((error) => {
-            console.log(`[crawler ${process.pid}] Running failed:`, error);
+            console.log(`(crawler ${threadId}) Running failed:`, error);
             const response: WorkerResponse = {
                 status: Progress.FAILED,
                 error: String(error),
@@ -47,7 +46,7 @@ parentPort?.on("message", (msg: WorkerCommand) => {
         .finally(() => currentCrawler = null);
     }
     else if (msg.command === Command.ABORT) {
-        console.log(`(crawler ${process.pid}) Aborting...`);
+        console.log(`(Worker ${threadId}) Aborting...`);
         currentCrawler?.abort();
         currentCrawler = null;
     }
