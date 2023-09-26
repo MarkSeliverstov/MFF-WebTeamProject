@@ -17,6 +17,6 @@ COPY src ./src
 EXPOSE 5173
 # VITE HMR
 EXPOSE 24678
-# Dirty hack to make it possible to move swagger.html to static folder
+# Dirty hack to make it possible to keep swagger.html
 # without being overwritten by volumes
 CMD [ "/bin/bash", "/app/entrypoint.sh" ]

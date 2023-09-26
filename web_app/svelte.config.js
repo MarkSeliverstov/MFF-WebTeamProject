@@ -15,7 +15,8 @@ const config = {
 		alias: {
 			$db: './src/lib/server/db',
 			$components: 'src/lib/components',
-			$static: './static'
+			$static: './static',
+			$src: './src',
 		}
 	}
 };
