@@ -1,41 +1,41 @@
 {
-	"name": "Ubuntu with Node and Docker",
-	"image": "mcr.microsoft.com/devcontainers/base:jammy",
-	"features": {
-		"ghcr.io/devcontainers/features/docker-in-docker:2": {
-			"version": "latest",
-			"dockerDashComposeVersion": "v2"
-		},
-		"ghcr.io/devcontainers/features/git:1": {
-			"version": "latest",
-			"ppa": false
-		},
-		"ghcr.io/devcontainers/features/node:1": {
-			"version": "lts"
-		}
-	},
-	"remoteUser": "vscode",
-	"customizations": {
-		"vscode": {
-			"extensions": [
-				"xabikos.JavaScriptSnippets",
-				"PKief.material-icon-theme",
-				"mgmcdermott.vscode-language-babel",
-				"ms-azuretools.vscode-docker",
-				"dbaeumer.vscode-eslint",
-				"GitHub.copilot",
-				"eamodio.gitlens",
-				"ecmel.vscode-html-css",
-				"esbenp.prettier-vscode",
-				"svelte.svelte-vscode",
-				"Gruntfuggly.todo-tree",
-				"mongodb.mongodb-vscode"
-			]
-		}
-	},
+  "name": "Ubuntu with Node and Docker",
+  "image": "mcr.microsoft.com/devcontainers/base:jammy",
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {
+      "version": "latest",
+      "dockerDashComposeVersion": "v2"
+    },
+    "ghcr.io/devcontainers/features/git:1": {
+      "version": "latest",
+      "ppa": false
+    },
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "lts"
+    }
+  },
+  "remoteUser": "vscode",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "xabikos.JavaScriptSnippets",
+        "PKief.material-icon-theme",
+        "mgmcdermott.vscode-language-babel",
+        "ms-azuretools.vscode-docker",
+        "dbaeumer.vscode-eslint",
+        "GitHub.copilot",
+        "eamodio.gitlens",
+        "ecmel.vscode-html-css",
+        "esbenp.prettier-vscode",
+        "svelte.svelte-vscode",
+        "Gruntfuggly.todo-tree",
+        "mongodb.mongodb-vscode"
+      ]
+    }
+  },
 
-	// 5000: Crawler, 5050: Web, 8080: Mongo Express, 27017: Mongo, 24678: Hot Reload
-	"forwardPorts": [5000, 5050, 8080, 27017, 24678],
+  // 3000: Web, 5000: Crawler, 8080: Mongo Express, 27017: Mongo, 24678: Hot Reload
+  "forwardPorts": [3000, 5000, 8080, 27017, 24678],
 
-	"postCreateCommand": "docker compose up -d"
+  "postCreateCommand": "docker compose up -d"
 }
