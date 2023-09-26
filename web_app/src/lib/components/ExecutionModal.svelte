@@ -14,7 +14,9 @@
     let currentPage = 1;
     let pageSize = 10;
 
+	
 	if (executions.length) {	
+		
 		
 		// sort executions by crawl end date in descending order
 		executions.sort((a, b) => {
@@ -27,8 +29,9 @@
 	}
 
 	$: if (dialog && showModal) dialog.showModal();
-
+	
     $: paginatedItems = paginate({ items: executions, pageSize, currentPage });	
+	
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-noninteractive-element-interactions -->
@@ -56,18 +59,17 @@
                 {#each paginatedItems as execution}
                     <li class="execution-li">
 						<div class="fields-container">
-							<!-- TODO: may not need this conditional rendering with data from crawler -->
 							{#if (execution.label)}
 								<h3>{execution.label}</h3>
 							{/if}
 
-							<p class="li-fields li-url">URL: {execution.url}</p>
-							<p class="li-fields li-status">Status: {execution.status}</p>
+							<p class="li-fields li-url"><b>URL:</b> {execution.url}</p>
+							<p class="li-fields li-status"><b>Status:</b> {execution.status}</p>
 							{#if (execution.status != "running")}
-								<p class="li-fields li-end-date">Crawl end: {new Date(execution.crawlTimeEnd).toLocaleString()}</p>
+								<p class="li-fields li-end-date"><b>Crawl end:</b> {Date(execution.crawlTimeEnd).toLocaleString()}</p>
 							{/if}
-							<p class="li-fields li-start-date">Crawl start: {new Date(execution.crawlTimeStart).toLocaleString()}</p>
-							<p class="li-fields li-sites-crawled">Sites crawled: {execution.sitesCrawled}</p>
+							<p class="li-fields li-start-date"><b>Crawl start:</b> {Date(execution.crawlTimeStart).toLocaleString()}</p>
+							<p class="li-fields li-sites-crawled"><b>Sites crawled:</b> {execution.sitesCrawled}</p>
 						</div>
                     </li>
                 {/each}

@@ -2,18 +2,19 @@
 	export let searchTerm : String;
     export let placeholder : string;
     export let searchMethods : string[];
-    export let sortBy : string = "URL";        
+    export let sortBy : string = "URL";    
 </script>
 
 
 <div id="search-input-cont">
 	<input type="text" 
-				 id="search-field" 
-                 disabled={!searchMethods.length}
-				 placeholder={placeholder}
-				 autocomplete="off"
-				 bind:value={searchTerm}
-				 on:input />   
+        id="search-field" 
+        disabled={!searchMethods.length}
+        placeholder={placeholder}
+        autocomplete="off"
+        bind:value={searchTerm}
+        on:input 
+    />   
     
     <div class="filter-label-container">             
         <label class="filter-label"><input type="checkbox" bind:group={searchMethods} value="URL"/>URL</label>

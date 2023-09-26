@@ -88,10 +88,17 @@ export class Crawler{
 			status: status,
 		};
 		if (!this.seenRoot){
+			const record = await db.getRecordByID(this.recordId);
+			record.latestGroupId++;
+			this.groupId = record.latestGroupId;
+			newExecution.groupId = this.groupId;
+			
 			newExecution.status = ExecutionStatus.RUNNING;
 			this.seenRoot = true;
 			newExecution.id = await db.createExecution(newExecution);
 			this.rootExecution = newExecution;
+			
+			await db.updateRecord(record);
 		} else{
 			await db.createExecution(newExecution);
 			this.rootExecution.sitesCrawled = this.crawledPages.length;
@@ -102,10 +109,6 @@ export class Crawler{
 	// Function to start the crawling process
 	public async StartCrawling(task: CrawlerTask) : Promise<number>{
 		this.recordId = task.recordId;
-		const record = await db.getRecordByID(this.recordId);
-		record.latestGroupId++;
-		this.groupId = record.latestGroupId;
-		await db.updateRecord(record);
 
 		const baseUrl = task.url;
 		const regex = RegExp(task.regex);

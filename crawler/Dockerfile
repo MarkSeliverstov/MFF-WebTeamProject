@@ -1,4 +1,7 @@
 FROM node:16-alpine
+
+ENV TZ=Europe/Prague
+
 RUN apk add dumb-init
 
 WORKDIR /app

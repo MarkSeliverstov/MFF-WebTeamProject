@@ -87,7 +87,7 @@ db.webpage_records.insertMany([
     },
     regexp: "",
     label: "westernise East Avon",
-    active: true,
+    active: false,
     tags: ["repurpose", "bootie", "indigo"],
     latestGroupId: 0,
   },
@@ -100,7 +100,7 @@ db.webpage_records.insertMany([
     },
     regexp: "",
     label: "westernise East Avon",
-    active: true,
+    active: false,
     tags: [],
     latestGroupId: 0,
   },
@@ -113,7 +113,7 @@ db.webpage_records.insertMany([
     },
     regexp: "",
     label: "westernise East Avon",
-    active: true,
+    active: false,
     tags: ["repurpose", "bootie", "indigo"],
     latestGroupId: 0,
   },
@@ -126,7 +126,7 @@ db.webpage_records.insertMany([
     },
     regexp: "",
     label: "westernise East Avon",
-    active: true,
+    active: false,
     tags: [],
     latestGroupId: 0,
   },
@@ -139,8 +139,80 @@ db.webpage_records.insertMany([
     },
     regexp: "",
     label: "westernise East Avon",
-    active: true,
+    active: false,
     tags: ["repurpose", "bootie", "indigo"],
     latestGroupId: 0,
   }
 ]);
+
+db.createCollection("executions", {
+  validator: {
+    $jsonSchema: {
+      bsonType: "object",
+      required: [
+        "ownerId",
+        "groupId",
+        "root",
+        "url",
+        "crawlTimeStart",
+        "crawlTimeEnd",
+        "status",
+        "sitesCrawled",
+        "links",
+        "title",
+      ],
+      additionalProperties: false,
+      properties: {
+        _id: {
+          bsonType: "objectId",
+        },
+        ownerId: {
+          bsonType: "objectId",
+          description: "must be an ObjectId and is required",
+        },
+        groupId: {
+          bsonType: "int",
+          description: "must be an int and is required",
+        },
+        root: {
+          bsonType: "bool",
+          description: "must be a bool and is required",
+        },
+        url: {
+          bsonType: "string",
+          description: "must be a string and is required",
+        },
+        crawlTimeStart: {
+          bsonType: "long",
+          description: "must be an int and is required",
+        },
+        crawlTimeEnd: {
+          bsonType: "long",
+          description: "must be an int and is required",
+        },
+        status: {
+          bsonType: "string",
+          enum: ["success", "failed", "running"],
+          description:
+            'must be one of "success", "failed", or "running" and is required',
+        },
+        sitesCrawled: {
+          bsonType: "int",
+          minimum: 0,
+          description: "must be a non-negative integer and is required",
+        },
+        links: {
+          bsonType: "array",
+          items: {
+            bsonType: "string",
+          },
+          description: "must be an array of strings",
+        },
+        title: {
+          bsonType: "string",
+          description: "must be a string and is required",
+        },
+      },
+    },
+  },
+});

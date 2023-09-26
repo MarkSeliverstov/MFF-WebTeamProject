@@ -7,10 +7,15 @@ services:
       target: deploy
     ports: 
       - 3000:3000
+    depends_on:
+      - mongodb
   crawler:
     build: ./crawler
     ports:
     - 5000:5000
+    depends_on:
+      - web-app
+    restart: always
   mongodb:
     image: mongo
     ports:

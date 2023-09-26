@@ -76,7 +76,7 @@
 		regexp: "",
 		active: false,
 		tags : [] as string[],
-		latestGroupId : -1,
+		latestGroupId : 0,
 	};
 
 	$: if (dialog && showModal) dialog.showModal();
@@ -99,7 +99,8 @@
 
 		recordData["active"] = websiteRecord.active;
 		recordData["regexp"] = websiteRecord.regexp;
-		recordData["latestGroupId"] = websiteRecord.latestGroupId
+		recordData["latestGroupId"] = websiteRecord.latestGroupId;
+		tags = websiteRecord.tags;
 	}	
 
 	function submitRecord() {

@@ -6,9 +6,9 @@
 	import NoResults from '$components/NoResults.svelte';
 	import RecordModal from '$components/RecordModal.svelte';
 	import ExecutionModal from '$components/ExecutionModal.svelte';
+	import { invalidateAll } from '$app/navigation';
 
 	export let data: PageData;
-
 	
 	let showModal = false;
 	let websiteRecordToEdit: WebsiteRecord | null = null;
@@ -21,7 +21,7 @@
 	let pageSize = 10;
 
 	// fetch website records from db
-	$: ({ websiteRecords } = data);
+	$: ({ websiteRecords , executions } = data);
 	
 	
 	// shallow copy of record array fetched from db; is filtered by search bar
@@ -32,7 +32,10 @@
 	let searchMethods: string[] = [];
 	let searchPlaceholder = '';
 
-	let sortBy = 'URL';
+	let sortBy = 'URL';	
+
+	// reactively sort records after change of sort by
+	$: sortBy, sortRecords();
 
 	//reactively search and change the search bar when search methods change
 	$: {
@@ -99,8 +102,17 @@
 		}
 
 		if (sortBy === 'LastCrawl') {
-			// TODO: implement sorting by last crawl time of each record
-			//return shownRecords = (websiteRecords as WebsiteRecord[]).sort()
+			return (shownRecords = shownRecords.sort((a, b) => {				
+				let aSource = a.lastExecution.crawlTimeEnd;
+				let bSource = b.lastExecution.crawlTimeEnd;
+
+				if (aSource && bSource) {
+					return bSource - aSource;
+				}
+				else {
+					return -1;
+				}				
+			}))		
 		}
 
 		throw new Error('Error: cannot sort by' + sortBy);
@@ -108,55 +120,26 @@
 	
 	// refresh view function + state bool (true if loading new data)
 	let refreshing: boolean = false;
-	function refreshRecords() {
-		fetch('/api/records')
-		.then((response) => response.json())
-		.then((newRecords) => (websiteRecords = newRecords))
-		.then(() => {
-			refreshing = false;
-		})
-		.catch((e) => console.log("fetching records encountered an error: " + e));
-	}
+	async function refreshRecords() {
+		refreshing = true;
+		await invalidateAll();
+		refreshing = false;
+	}	
 
-	
-	let loadingExecutions: boolean = false;
 	let showExecutions = false;
 	let showExecutionsForRecord = false;
 	let executions : Execution[] = [];
 
-	let executionParentRecord : WebsiteRecord | null = null; // passed to a record-specific execution showing 
-
-	// fetch executions and save them into a page scoped variable
-	function getExecutions() {
-		fetch("/api/executions")
-		.then((response) => response.json())
-		.then((executionJSON) => {
-			executions = (executionJSON as Execution[]);
-
-			// map each record's label to its executions and add it as a field
-			for (const record of websiteRecords) {
-
-				const url = record.url;
-				const currentExecutions = executions.filter((execution) => {
-					return (execution.url === url && execution.root)
-				})
-
-				for (const execution of currentExecutions) {
-					execution.label = record.label;
-				}
-			}})
-		.then(() => {loadingExecutions = false;})
-		.catch((e) => {
-			console.log("Encountered an error while getting execution data. Error:" + e.type);
-		}
-		);
-	}
-
+	let executionParentRecord : WebsiteRecord | null = null; // passed to a record-specific execution showing
+	
 	function filterExecutionsForRecord() {
 		return executions.filter((execution) => {
-			 return execution.url === executionParentRecord!.url && execution.root
+			 return execution.url === executionParentRecord!.url;
 		})
-	}
+	}	
+
+	// contains ids of records in active selection; passed to visualization
+	let activeSelection = [];
 	
 	$: paginatedItems = paginate({ items: shownRecords, pageSize, currentPage });
 </script>
@@ -167,26 +150,20 @@
 			placeholder={searchPlaceholder}
 			bind:searchMethods
 			bind:searchTerm
+			bind:sortBy
 			on:input={searchRecords}
 		/>
 		<button
-			on:click={() => {
-				loadingExecutions = true;
-				getExecutions();
+			on:click={async () => {
 				showExecutions = true;}}
 			class="view-buttons show-all-executions-button"
-		>
-		{#if (loadingExecutions)}
-				<span class="loading-spinner" />
-		{:else}
+		>		
 			Show all executions
-		{/if}
 		</button>
 
 		<button
-			on:click={() => {
-				refreshing = true;
-				refreshRecords();
+			on:click={async () => {
+				await refreshRecords();
 			}}
 			class="view-buttons refresh-button"
 		>
@@ -206,13 +183,13 @@
 		</div>
 	{:else}
 		<ul class="website-record-list">
-			{#each paginatedItems as websiteRecord, i}
+			{#each paginatedItems as websiteRecord}
 				<li class="website-record-li">
 					<div class="fields-container">
 						<h2 class="li-label">{websiteRecord.label}</h2>
-						<p class="li-fields li-url">URL: {websiteRecord.url}</p>
+						<p class="li-fields li-url"><b>URL:</b> {websiteRecord.url}</p>
 						<p class="li-fields li-periodicity">
-							Periodicity:
+							<b>Periodicity:</b>
 							{#if websiteRecord.periodicity != null}
 								every
 								{websiteRecord.periodicity.days} days,
@@ -222,30 +199,47 @@
 								No period set
 							{/if}
 						</p>
-						<p class="li-fields li-regex">Regex: {websiteRecord.regexp}</p>
-						<p class="li-fields li-active">Active: {websiteRecord.active ? 'Yes' : 'No'}</p>
+						<p class="li-fields li-regex"><b>Regex:</b> {websiteRecord.regexp}</p>
+						<p class="li-fields li-active"><b>Active:</b> {websiteRecord.active ? 'Yes' : 'No'}</p>
 
 						<ul class="li-fields li-tags">
-							Tags:
+							<b>Tags:</b>
 							{#each websiteRecord.tags as tag}
 								<li>
 									{tag}
 								</li>
 							{/each}
 						</ul>
-						<!-- TODO: Time+status of last execution goes here -->
+
+						{#if (websiteRecord.lastExecution)}
+							<p class="li-fields"><b>Latest execution status:</b> {websiteRecord.lastExecution.status}</p>							
+							<p class="li-fields"><b>Latest execution date:</b> 
+								{#if (websiteRecord.lastExecution.status === "running")}
+									Not finished yet
+								{:else}	
+									{Date(websiteRecord.lastExecution.crawlTimeEnd).toLocaleString()}
+								{/if}
+							</p>
+						{/if}
 					</div>
 					
 					<div class="record-buttons-container">
+						<button class="view-buttons" on:click={() => websiteRecord.checked = !websiteRecord.checked}>Active selection
+							<input type="checkbox" bind:checked={websiteRecord.checked} bind:group={activeSelection}  value={websiteRecord.id}/>
+						</button>
+						
 						<button
-						on:click={() => {fetch("http://crawler:5000/")}}
+						on:click={() => { try {
+							fetch(`http://localhost:5000/api/crawler/start/${websiteRecord.id}`)}
+							catch(error) {
+								console.log(error);
+							} }}
 						class="start-crawling-button view-buttons">
 							Start crawling
 						</button>
 						
 						<button class="show-executions-button view-buttons"
-						on:click={() => {
-							getExecutions();
+						on:click={ async () => {	
 							executionParentRecord = websiteRecord;
 							showExecutionsForRecord = true;
 						}}>
@@ -257,8 +251,28 @@
 								websiteRecordToEdit = websiteRecord;
 								showModal = true;
 							}}
-							class="edit-record-button view-buttons">Edit</button
-						>
+							class="edit-record-button view-buttons">Edit						
+						</button>
+
+						<button 
+							on:click={async () => {
+								// delete the record from db
+								await fetch(`http://localhost:3000/api/record/${websiteRecord.id}`, {
+									method: "DELETE"
+								});
+
+								// delete all executions that belong to the record from db
+								await fetch(`http://localhost:3000/api/executions/${websiteRecord.id}`, {
+									method: "DELETE"
+								})
+
+								// make the change appear before fetching new data from db
+								websiteRecords = websiteRecords.filter((record) => record != websiteRecord);
+								executions = executions.filter((execution) => execution.ownerId != websiteRecord.id);
+							}}
+							class="view-buttons">Delete
+						</button>
+					
 					</div>					
 				</li>
 			{/each}
@@ -271,14 +285,12 @@
 
 	{#if showExecutions}
 		<ExecutionModal bind:showModal={showExecutions} executions={executions}/>
-	<!-- TODO: implement execution modal after finishing its component -->
 	{/if}
 
 	{#if showModal && websiteRecordToEdit === null}
 		<RecordModal bind:showModal />
 	{:else if showModal && websiteRecordToEdit != null}
 		<RecordModal bind:showModal bind:websiteRecord={websiteRecordToEdit} />
-		<!-- TODO: binding of websiteRecord may cause bugs! -->
 	{/if}
 </body>
 
@@ -294,9 +306,14 @@
 </div>
 
 <div class="add-record-button-container">
-	<button on:click={() => (showModal = true)} class="add-record-button view-buttons"
+	<button on:click={() => (showModal = true)} class="view-buttons"
 		>Add record</button
 	>
+
+</div>
+
+<div class="visualize-button-container">
+	<button class="view-buttons">Visualize active selection</button>
 </div>
 
 <style>
@@ -350,7 +367,7 @@
 		display: flex;
 		flex-direction: column;
 		justify-content: center;
-		gap: 25px;
+		gap: 15px;
 
 		margin-left: 10px;
 	}
@@ -399,6 +416,16 @@
 		z-index: 100;
 		bottom: 5px;
 		right: 5px;
+	}
+	.visualize-button-container {
+		border: thick solid;
+		border-color: rgba(0, 0, 0, 0.1);
+		border-radius: 5px;
+		padding: 0;
+		position: fixed;
+		z-index: 100;
+		bottom: 5px;
+		left: 5px;
 	}
 	:global(.view-buttons) {
 		border: solid medium black;

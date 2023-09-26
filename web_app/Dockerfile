@@ -5,6 +5,8 @@ WORKDIR /app
 COPY entrypoint.sh ./
 RUN chmod +x entrypoint.sh
 
+ENV TZ=Europe/Prague
+
 COPY svelte.config.js vite.config.ts tsconfig.json ./
 COPY package.json package-lock.json ./
 RUN npm install
