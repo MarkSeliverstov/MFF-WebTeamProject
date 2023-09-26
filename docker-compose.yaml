@@ -8,6 +8,8 @@ services:
     volumes:
       - ./web_app:/app
       - /app/node_modules
+    depends_on:
+      - mongo-express
   crawler:
     build: ./crawler
     ports:
@@ -15,6 +17,9 @@ services:
     volumes:
       - ./crawler/src:/app/src
       - /app/node_modules
+    depends_on:
+      - web-app
+    restart: always
   mongodb:
     image: mongo
     ports:

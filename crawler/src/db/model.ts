@@ -25,7 +25,7 @@ export interface PreparedWebsiteRecord {
 	latestGroupId: number; // Latest group id that was assigned for execution
 }
 
-export enum ExecutionSatus {
+export enum ExecutionStatus {
 	SUCCESS = "success",
 	FAILED = "failed",
 	RUNNING = "running",
@@ -43,7 +43,7 @@ export interface Execution {
 	url: string; // Url of the page that was crawled
 	crawlTimeStart: number;
 	crawlTimeEnd: number;
-	status: ExecutionSatus;
+	status: ExecutionStatus;
 	sitesCrawled: number;
 	links: string[]; // Links that were found on the page,
 	title: string;
@@ -56,7 +56,7 @@ export interface PreparedExecution {
 	url: string; // Url of the page that was crawled
 	crawlTimeStart: number;
 	crawlTimeEnd: number;
-	status: ExecutionSatus;
+	status: ExecutionStatus;
 	sitesCrawled: number;
 	links: string[]; // Links that were found on the page,
 	title: string;
