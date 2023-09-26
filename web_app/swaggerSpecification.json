@@ -1158,6 +1158,122 @@
 				},
 				"tags": ["Website Records"]
 			}
+		},
+		"http://localhost:5000/api/crawler/start/{id}": {
+			"get": {
+				"summary": "Start crawler for given website record ID",
+				"description": "Start crawler for given website record ID",
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						},
+						"description": "The unique identifier of the website record."
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Crawling started succesfully",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"message": {
+											"type": "string"
+										}
+									},
+									"required": ["message"]
+								},
+								"example": {
+									"message": "Crawling started succesfully"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Record with id: ${id} not found!",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"message": {
+											"type": "string"
+										}
+									},
+									"required": ["message"]
+								},
+								"example": {
+									"message": "Record with id: ${id} not found!"
+								}
+							}
+						}
+					}
+				},
+				"tags": ["Crawler"]
+			}
+		},
+		"http://localhost:5000/api/crawler/stop/{id}": {
+			"get": {
+				"summary": "Stop crawler for given website record ID",
+				"description": "Stop crawler for given website record ID",
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						},
+						"description": "The unique identifier of the website record."
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Crawling was succesfully aborted",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"message": {
+											"type": "string"
+										}
+									},
+									"required": ["message"]
+								},
+								"example": {
+									"message": "Crawling was succesfully aborted"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Record with id: ${id} not found!",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"message": {
+											"type": "string"
+										}
+									},
+									"required": ["message"]
+								},
+								"example": {
+									"message": "Record with id: ${id} not found!"
+								}
+							}
+						}
+					}
+				},
+				"tags": ["Crawler"]
+			}
 		}
 	},
 	"components": {
