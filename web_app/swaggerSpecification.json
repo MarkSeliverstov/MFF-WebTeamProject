@@ -136,7 +136,7 @@
 									},
 									"status": {
 										"type": "string",
-										"enum": ["success", "failed", "running", "queued"]
+										"enum": ["success", "failed", "running", "queued", "notValid"]
 									},
 									"sitesCrawled": {
 										"type": "integer",
@@ -369,7 +369,7 @@
 									},
 									"status": {
 										"type": "string",
-										"enum": ["success", "failed", "running", "queued"]
+										"enum": ["success", "failed", "running", "queued", "notValid"]
 									},
 									"sitesCrawled": {
 										"type": "integer",
@@ -1366,7 +1366,7 @@
 					},
 					"status": {
 						"type": "string",
-						"enum": ["success", "failed", "running", "queued"]
+						"enum": ["success", "failed", "running", "queued", "notValid"]
 					},
 					"sitesCrawled": {
 						"type": "integer",

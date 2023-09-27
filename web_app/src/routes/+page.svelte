@@ -7,7 +7,7 @@
 	import RecordModal from '$components/RecordModal.svelte';
 	import ExecutionModal from '$components/ExecutionModal.svelte';
 	import VisualizationModal from '$components/VisualizationModal.svelte';
-	import { goto, invalidateAll } from '$app/navigation';
+	import { invalidateAll } from '$app/navigation';
 
 	export let data: PageData;
 
@@ -111,7 +111,18 @@
 		if (sortBy === 'LastCrawl') {
 			return (shownRecords = shownRecords.sort((a, b) => {
 				if (a.lastExecution && b.lastExecution) {
-					return b.lastExecution.crawlTimeEnd - a.lastExecution.crawlTimeEnd;
+					if (a.lastExecution.status === "success" && b.lastExecution.status === "success") {
+						return b.lastExecution.crawlTimeEnd - a.lastExecution.crawlTimeEnd;
+					}
+					else if (a.lastExecution.status != "success") {
+						return 1;
+					}
+					else if (b.lastExecution.status != "success") {
+						return -1;
+					}
+					else {
+						return 0;
+					}
 				}
 				else if (!a.lastExecution) {
 					return -1;
@@ -149,11 +160,13 @@
 	let activeSelection : WebsiteRecord[] = [];
 	
 	function returnActiveExecutions() {
+		let activeExecutions : Execution[] = [];
 		for(const activeId of activeSelection) {
 			if(lastExecutionsMap.has(activeId)) {
-				return executions.filter((execution) => execution.ownerId === activeId);
+				activeExecutions = [...activeExecutions , ...lastExecutionsMap.get(activeId)!];
 			}
 		}
+		return activeExecutions;
 	}
 	
 	$: paginatedItems = paginate({ items: shownRecords, pageSize, currentPage });
@@ -262,6 +275,9 @@
 						on:click={async () => { 
 							waitingForCrawler = true;
 							await fetch(`http://localhost:5000/api/crawler/start/${websiteRecord.id}`);
+							setTimeout(async () => {
+								await refreshRecords()
+							}, 300);
 							waitingForCrawler = false;}
 							}
 						class="start-crawling-button view-buttons">
@@ -344,9 +360,12 @@
 </div>
 
 <div class="add-record-button-container">
-	<button on:click={() => (showModal = true)} class="view-buttons"
-		>Add record</button
-	>
+	<button on:click={() => {
+		showModal = true;}} 
+		class="view-buttons"
+		>
+		Add record
+	</button>
 
 </div>
 
@@ -520,6 +539,11 @@
 		position: relative;
 		display: block;
 		min-height: 20px;
+	}
+
+	:global(#cytoscape) {
+		width: 100%;
+		height: 100%;
 	}
 
 	.loading-spinner::before {

@@ -22,7 +22,7 @@
 			cy.style()
 				.selector('node')
 				.style({
-					'background-color': 'green',
+					'background-color': (node) => getColorByStatusFrequency(node.data()),
 					width: '35px',
 					height: '35px',
 					label: 'data(id)'
@@ -129,29 +129,20 @@
 		cy.userZoomingEnabled(true);
 	}
 
-	function getColorForStatus(status: string): string {
-		switch (status) {
-			case 'notYetCrawled':
-				return 'gray';
-			case 'success':
+	function getColorByStatusFrequency(nodeData: any): string {
+		switch (Object.keys(nodeData).reduce((a,b) => nodeData[a] > nodeData[b] ? a : b)) {
+			case 'succesCount':
 				return 'green';
-			case 'notValidUrl':
-				return 'orange';
-			case 'failed':
+			case 'failedCount':
 				return 'red';
+			case 'invalidCount':
+				return 'orange';
+			case 'notCrawledCount':
+				return 'gray';
 			default:
 				return 'gray';
 		}
 	}
 </script>
 
-<body>
-	<div id="cytoscape" />
-</body>
-
-<style>
-	#cytoscape {
-		width: 100vw;
-		height: 100vh;
-	}
-</style>
+<div id="cytoscape" />

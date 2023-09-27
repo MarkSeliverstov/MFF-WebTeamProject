@@ -1,4 +1,4 @@
-import type { Execution } from '$src/lib/types';
+import type { Execution, WebsiteRecord } from '$src/lib/types';
 import type { PageLoad } from './api/$types';
 
 export const load: PageLoad = async ({ fetch }) => {
@@ -9,7 +9,7 @@ export const load: PageLoad = async ({ fetch }) => {
 	}
 	const executions = await getAllExecutions();
 
-	const getRecordsWithLastExecutions = async () => {
+	const getRecordsWithLastExecutions = async (): Promise<{ records: WebsiteRecord[], lastExecutionsMap: Map<string, Execution[]> }> => {
 		const responseGetAll = await fetch('/api/records');
 		const records = await responseGetAll.json();
 		const lastExecutionsMap = new Map<string, Execution[]>();

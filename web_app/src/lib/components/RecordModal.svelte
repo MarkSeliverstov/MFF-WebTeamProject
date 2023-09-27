@@ -1,7 +1,8 @@
 <script lang="ts">
 	import type { WebsiteRecord , Periodicity} from "$lib/types";
 	import Tags from "./Tags.svelte";    
-	import { object, string, number, boolean, ValidationError } from 'yup';
+	import { object, string, number, boolean, ValidationError } from 'yup'; 
+	import { invalidateAll } from '$app/navigation';
 
 	export let showModal : boolean;
 
@@ -103,7 +104,7 @@
 		tags = websiteRecord.tags;
 	}	
 
-	function submitRecord() {
+	async function submitRecord() {
 		try {
 			recordSchema.validateSync(recordData, { abortEarly: false});
 		}
@@ -140,8 +141,7 @@
 			.then(() => dialog.close())
 			.catch((error) => window.alert(error));
 		}
-		
-
+		await invalidateAll();
 	}
 	
 </script>

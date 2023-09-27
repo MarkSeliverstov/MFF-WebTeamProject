@@ -142,7 +142,7 @@ db.webpage_records.insertMany([
     active: false,
     tags: ["repurpose", "bootie", "indigo"],
     latestGroupId: 0,
-  }
+  },
 ]);
 
 db.createCollection("executions", {
@@ -192,9 +192,9 @@ db.createCollection("executions", {
         },
         status: {
           bsonType: "string",
-          enum: ["success", "failed", "running"],
+          enum: ["success", "failed", "running", "queued", "notValid"],
           description:
-            'must be one of "success", "failed", or "running" and is required',
+            'must be one of "success", "failed", "running", "queued" or "notValid" and is required',
         },
         sitesCrawled: {
           bsonType: "int",

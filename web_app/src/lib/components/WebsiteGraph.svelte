@@ -1,4 +1,5 @@
 <script lang="ts">
+	import type { Execution } from '$lib/types';
 	import cytoscape from 'cytoscape';
 	import { websiteGraphData } from '$lib/graphDataStore';
 	import { onMount } from 'svelte';
@@ -152,7 +153,7 @@
 				return 'gray';
 			case 'success':
 				return 'green';
-			case 'notValidUrl':
+			case 'notValid':
 				return 'orange';
 			case 'failed':
 				return 'red';
@@ -162,13 +163,4 @@
 	}
 </script>
 
-<body>
-	<div id="cytoscape" />
-</body>
-
-<style>
-	#cytoscape {
-		width: 100%;
-		height: 100%;
-	}
-</style>
+<div id="cytoscape" />
