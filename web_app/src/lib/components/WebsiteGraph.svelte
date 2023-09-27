@@ -17,6 +17,13 @@
 				edges: $websiteGraphData.edges
 			});
 
+			cy.nodes().forEach((node) => {
+				const root = node.data("root");
+				if (root) {
+					node.addClass('root');
+				}				
+			})
+
 			cy.minZoom(0.2);
 			cy.maxZoom(1.2);
 
@@ -43,6 +50,21 @@
 					'text-border-opacity': 1,
 					'text-border-color': 'black',
 					'text-border-width': 5,
+					'text-background-padding': '5px',
+					'z-index': 5
+				})
+				.selector('node.root')
+				.style({
+					width: '75px',
+					height: '75px',
+					'border-color': 'black',
+					'border-width': '5px',
+					'font-weight': 'bold',
+					'font-size': 20,
+					'text-transform': 'uppercase',
+					'text-background-color': 'beige',
+					'text-background-opacity': 1,
+					'text-background-shape': 'roundrectangle',
 					'text-background-padding': '5px',
 					'z-index': 5
 				})

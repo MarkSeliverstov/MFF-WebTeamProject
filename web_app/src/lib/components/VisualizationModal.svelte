@@ -140,20 +140,27 @@
 					}
 				})
 			}
+			if (!domainNodes.has(domain)) {
+				const domainNode = {
+							data: {
+								id: domain,
+								links: Array.from(uniqueLinks),
+								root: sourceNode.root,
+								successCount: 0,
+								failedCount: 0,
+								invalidCount: 0,
+								notCrawledCount: 0,
+							}
+						}				
+				
+				domainNodes.set(domain, domainNode);
+			}
+			else {
+				if (sourceNode.root) {domainNodes.get(domain)!.data.root = sourceNode.root;}
+				domainNodes.get(domain)!.data.links = Array.from(uniqueLinks);
+			}
 		});
-		const domainNode = {
-					data: {
-						id: domain,
-						links: Array.from(uniqueLinks),
-						root: sourceNode.root,
-						successCount: 0,
-						failedCount: 0,
-						invalidCount: 0,
-						notCrawledCount: 0,
-					}
-				}				
-		
-		domainNodes.set(domain, domainNode);
+
 
 	});
 	$: websiteGraphData.set({ nodes: Array.from(websiteNodes.values()), edges: websiteEdges });

@@ -1,28 +1,28 @@
 <script lang="ts">
 	import type { Execution } from '$lib/types';
 	import cytoscape from 'cytoscape';
-	import { websiteGraphData } from '$lib/graphDataStore';
+	import { domainGraphData } from '$lib/graphDataStore';
 	import { onMount } from 'svelte';
 	import NodeDetail from './NodeDetail.svelte';
 
 	onMount(() => {
 		// check if the graph data is available
-		if ($websiteGraphData.nodes.length && $websiteGraphData.edges.length) {
+		if ($domainGraphData.nodes.length && $domainGraphData.edges.length) {
+			console.log($domainGraphData.nodes);
 			var cy = cytoscape({
 				container: document.getElementById('cytoscape')
 			});
 
 			cy.add({
-				nodes: $websiteGraphData.nodes,
-				edges: $websiteGraphData.edges
+				nodes: $domainGraphData.nodes,
+				edges: $domainGraphData.edges
 			});
 
 			cy.nodes().forEach((node) => {
 				const root = node.data("root");
 				if (root) {
 					node.addClass('root');
-				}
-				
+				}				
 			})
 
 			cy.minZoom(0.2);
@@ -56,14 +56,14 @@
 				})
 				.selector('node.root')
 				.style({
-					width: '55px',
-					height: '55px',
+					width: '75px',
+					height: '75px',
 					'border-color': 'black',
 					'border-width': '5px',
 					'font-weight': 'bold',
 					'font-size': 20,
 					'text-transform': 'uppercase',
-					'text-background-color': 'white',
+					'text-background-color': 'beige',
 					'text-background-opacity': 1,
 					'text-background-shape': 'roundrectangle',
 					'text-background-padding': '5px',
@@ -171,7 +171,9 @@
 	}
 
 	function getColorByStatusFrequency(nodeData: any): string {
+		
 		switch (Object.keys(nodeData).reduce((a, b) => (nodeData[a] > nodeData[b] ? a : b))) {
+
 			case 'successCount':
 				return 'green';
 			case 'failedCount':
