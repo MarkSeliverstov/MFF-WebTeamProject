@@ -66,9 +66,9 @@
 							<p class="li-fields li-url"><b>URL:</b> {execution.url}</p>
 							<p class="li-fields li-status"><b>Status:</b> {execution.status}</p>
 							{#if (execution.status != "running")}
-								<p class="li-fields li-end-date"><b>Crawl end:</b> {Date(execution.crawlTimeEnd).toLocaleString()}</p>
+								<p class="li-fields li-end-date"><b>Crawl end:</b> {new Date(execution.crawlTimeEnd).toLocaleString("en-GB")}</p>
 							{/if}
-							<p class="li-fields li-start-date"><b>Crawl start:</b> {Date(execution.crawlTimeStart).toLocaleString()}</p>
+							<p class="li-fields li-start-date"><b>Crawl start:</b> {new Date(execution.crawlTimeStart).toLocaleString("en-GB")}</p>
 							<p class="li-fields li-sites-crawled"><b>Sites crawled:</b> {execution.sitesCrawled}</p>
 						</div>
                     </li>

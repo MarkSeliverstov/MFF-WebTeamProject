@@ -24,7 +24,7 @@
 
     <div class="sort-by-container">
         <label for="sort-by" class="sort-by-label"><b>Sort by:</b></label>
-        <select name="sort-by" class="sort-by" bind:value={sortBy}>
+        <select name="sort-by" class="sort-by" id="sort-by" bind:value={sortBy}>
             <option value="URL">URL</option>
             <option value="LastCrawl">Crawl date</option>
         </select>

@@ -14,3 +14,18 @@
 		Domain view
 	{/if}
 </button>
+
+<style>
+	#viewModeButton {
+		
+		border: solid medium black;
+		border-radius: 5px;
+		padding: 10px;
+		background-color: beige;
+		font-size: medium;
+		font-weight: bold;
+	}
+	#viewModeButton:hover {
+		background-color: bisque;
+	}	
+</style>

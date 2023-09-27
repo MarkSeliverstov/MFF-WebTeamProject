@@ -55,7 +55,7 @@
 				})
 				.update();
 
-			cy.on('dblclick', 'node', (event) => showNodeDetail(event, cy));
+			cy.on('click', 'node', (event) => showNodeDetail(event, cy));
 
 			var layout = cy.layout({
 				name: 'cose',
@@ -74,51 +74,59 @@
 			layout.run();			
 		}
 	});
-
+	let clicks = 0;
 	function showNodeDetail(event: cytoscape.EventObject, cy: cytoscape.Core) {
-		//set default style on previous selected node
-		cy.nodes('.detailedView').removeClass('detailedView');
-
-		//remove a previous node detail if it exists
-		let previousTooltip = document.getElementById('nodeDetail');
-		if (previousTooltip) {
-			previousTooltip.parentElement?.removeChild(previousTooltip);
-		}
-
-		//animate graph centering on the clicked node
-		cy.animate({
-			center: {
-				eles: event.target
-			},
-			zoom: 0.75
-		});
-
-		//add a style class to the clicked node
-		event.target.addClass('detailedView');
-
-		//create a new node detail
-		const node = event.target.data();
-		const target = document.getElementById('cytoscape')!;
-		const tooltip = new NodeDetail({
-			target: target,
-			props: {
-				node: node,
-				onClose: () => nodeDetailOnClose(cy, event.target)
+		++clicks;
+		if (clicks <= 1) {
+			setTimeout(() => {
+				clicks = 0;
+			}, 250);
+		} else if (clicks === 2) {
+			clicks = 0;
+			//set default style on previous selected node
+			cy.nodes('.detailedView').removeClass('detailedView');
+	
+			//remove a previous node detail if it exists
+			let previousTooltip = document.getElementById('nodeDetail');
+			if (previousTooltip) {
+				previousTooltip.parentElement?.removeChild(previousTooltip);
 			}
-		});
-
-		//prevent input from affecting the graph underneath the node detail
-		const detail = document.getElementById('nodeDetail')!;
-
-		detail.addEventListener('mouseover', () => {
-			cy.userPanningEnabled(false);
-			cy.userZoomingEnabled(false);
-		});
-
-		detail.addEventListener('mouseout', () => {
-			cy.userPanningEnabled(true);
-			cy.userZoomingEnabled(true);
-		});
+	
+			//animate graph centering on the clicked node
+			cy.animate({
+				center: {
+					eles: event.target
+				},
+				zoom: 0.75
+			});
+	
+			//add a style class to the clicked node
+			event.target.addClass('detailedView');
+	
+			//create a new node detail
+			const node = event.target.data();
+			const target = document.getElementById('cytoscape')!;
+			const tooltip = new NodeDetail({
+				target: target,
+				props: {
+					node: node,
+					onClose: () => nodeDetailOnClose(cy, event.target)
+				}
+			});
+	
+			//prevent input from affecting the graph underneath the node detail
+			const detail = document.getElementById('nodeDetail')!;
+	
+			detail.addEventListener('mouseover', () => {
+				cy.userPanningEnabled(false);
+				cy.userZoomingEnabled(false);
+			});
+	
+			detail.addEventListener('mouseout', () => {
+				cy.userPanningEnabled(true);
+				cy.userZoomingEnabled(true);
+			});
+		}
 	}
 
 	// function passed to the button on node detail; handles closing
@@ -160,7 +168,7 @@
 
 <style>
 	#cytoscape {
-		width: 100vw;
-		height: 100vh;
+		width: 100%;
+		height: 100%;
 	}
 </style>

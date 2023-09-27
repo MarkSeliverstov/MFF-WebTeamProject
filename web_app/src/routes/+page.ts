@@ -1,4 +1,4 @@
-import type { WebsiteRecord, Execution } from '$src/lib/types';
+import type { Execution } from '$src/lib/types';
 import type { PageLoad } from './api/$types';
 
 export const load: PageLoad = async ({ fetch }) => {
@@ -12,11 +12,12 @@ export const load: PageLoad = async ({ fetch }) => {
 	const getRecordsWithLastExecutions = async () => {
 		const responseGetAll = await fetch('/api/records');
 		const records = await responseGetAll.json();
-		
+		const lastExecutionsMap = new Map<string, Execution[]>();
 		for(const record of records) {
 			try {
 				const request = await fetch(`/api/executions?ownerId=${record.id}&groupId=${record.latestGroupId}`);
 				const lastExecutions = await request.json();
+				lastExecutionsMap.set(record.id, lastExecutions);
 				const lastExecution = lastExecutions.find((execution: Execution) => execution.root);
 				record.lastExecution = lastExecution;
 				//console.log(record);
@@ -26,12 +27,12 @@ export const load: PageLoad = async ({ fetch }) => {
 			}
 			record.selected = false;
 		}
-		return records;
+		return  { records, lastExecutionsMap };
 	}
 
-	const recordsWithExecutions = await getRecordsWithLastExecutions();
+	const { records, lastExecutionsMap } = await getRecordsWithLastExecutions();
 
     return {
-		websiteRecords: recordsWithExecutions, executions: executions, 	
+		websiteRecords: records, lastExecutionsMap: lastExecutionsMap, executions: executions, 	
 	};
 };

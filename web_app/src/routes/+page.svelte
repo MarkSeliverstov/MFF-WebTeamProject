@@ -1,14 +1,19 @@
 <script lang="ts">
 	import { paginate, LightPaginationNav } from 'svelte-paginate';
 	import type { Execution, WebsiteRecord } from '$lib/types';
-	import type { PageData } from './api/$types';
+	import type { PageData } from './$types';
 	import SearchBar from '$components/SearchBar.svelte';
 	import NoResults from '$components/NoResults.svelte';
 	import RecordModal from '$components/RecordModal.svelte';
 	import ExecutionModal from '$components/ExecutionModal.svelte';
-	import { invalidateAll } from '$app/navigation';
+	import VisualizationModal from '$components/VisualizationModal.svelte';
+	import { goto, invalidateAll } from '$app/navigation';
 
 	export let data: PageData;
+
+	let loadingVisualization = false;
+
+	let waitingForCrawler = false;
 	
 	let showModal = false;
 	let websiteRecordToEdit: WebsiteRecord | null = null;
@@ -16,12 +21,14 @@
 		websiteRecordToEdit = null;
 	}
 
+	let showVisualization = false;
+
 	let paginatedItems: any;
 	let currentPage = 1;
 	let pageSize = 10;
 
 	// fetch website records from db
-	$: ({ websiteRecords , executions } = data);
+	$: ({ websiteRecords, lastExecutionsMap, executions } = data);
 	
 	
 	// shallow copy of record array fetched from db; is filtered by search bar
@@ -102,15 +109,15 @@
 		}
 
 		if (sortBy === 'LastCrawl') {
-			return (shownRecords = shownRecords.sort((a, b) => {				
-				let aSource = a.lastExecution.crawlTimeEnd;
-				let bSource = b.lastExecution.crawlTimeEnd;
-
-				if (aSource && bSource) {
-					return bSource - aSource;
+			return (shownRecords = shownRecords.sort((a, b) => {
+				if (a.lastExecution && b.lastExecution) {
+					return b.lastExecution.crawlTimeEnd - a.lastExecution.crawlTimeEnd;
+				}
+				else if (!a.lastExecution) {
+					return -1;
 				}
 				else {
-					return -1;
+					return 1;
 				}				
 			}))		
 		}
@@ -134,12 +141,20 @@
 	
 	function filterExecutionsForRecord() {
 		return executions.filter((execution) => {
-			 return execution.url === executionParentRecord!.url;
+			 return execution.ownerId === executionParentRecord!.id;
 		})
 	}	
 
 	// contains ids of records in active selection; passed to visualization
-	let activeSelection = [];
+	let activeSelection : WebsiteRecord[] = [];
+	
+	function returnActiveExecutions() {
+		for(const activeId of activeSelection) {
+			if(lastExecutionsMap.has(activeId)) {
+				return executions.filter((execution) => execution.ownerId === activeId);
+			}
+		}
+	}
 	
 	$: paginatedItems = paginate({ items: shownRecords, pageSize, currentPage });
 </script>
@@ -217,25 +232,44 @@
 								{#if (websiteRecord.lastExecution.status === "running")}
 									Not finished yet
 								{:else}	
-									{Date(websiteRecord.lastExecution.crawlTimeEnd).toLocaleString()}
+									{new Date(websiteRecord.lastExecution.crawlTimeEnd).toLocaleString("en-GB")}
 								{/if}
 							</p>
 						{/if}
 					</div>
 					
 					<div class="record-buttons-container">
-						<button class="view-buttons" on:click={() => websiteRecord.checked = !websiteRecord.checked}>Active selection
-							<input type="checkbox" bind:checked={websiteRecord.checked} bind:group={activeSelection}  value={websiteRecord.id}/>
+						{#if (websiteRecord.lastExecution)}
+						<button class="view-buttons {websiteRecord.checked ? "selected" : "unselected"}" on:click={() => {
+								websiteRecord.checked = !websiteRecord.checked;
+								if (websiteRecord.checked && activeSelection.indexOf(websiteRecord.id) === -1) {
+									activeSelection.push(websiteRecord.id);
+								}
+								else {
+									activeSelection = activeSelection.filter((record) => record != websiteRecord.id);
+								}								
+							}}							
+							>
+							{#if (websiteRecord.checked)}
+								Unselect
+							{:else}
+								Select
+							{/if}
 						</button>
+						{/if}
 						
 						<button
-						on:click={() => { try {
-							fetch(`http://localhost:5000/api/crawler/start/${websiteRecord.id}`)}
-							catch(error) {
-								console.log(error);
-							} }}
+						on:click={async () => { 
+							waitingForCrawler = true;
+							await fetch(`http://localhost:5000/api/crawler/start/${websiteRecord.id}`);
+							waitingForCrawler = false;}
+							}
 						class="start-crawling-button view-buttons">
+						{#if (waitingForCrawler)}
+							<span class="loading-spinner" />
+						{:else}
 							Start crawling
+						{/if}
 						</button>
 						
 						<button class="show-executions-button view-buttons"
@@ -292,6 +326,10 @@
 	{:else if showModal && websiteRecordToEdit != null}
 		<RecordModal bind:showModal bind:websiteRecord={websiteRecordToEdit} />
 	{/if}
+
+	{#if showVisualization}
+		<VisualizationModal bind:showModal={showVisualization} executions={returnActiveExecutions()} />
+	{/if}
 </body>
 
 <div class="pagination-div">
@@ -313,10 +351,38 @@
 </div>
 
 <div class="visualize-button-container">
-	<button class="view-buttons">Visualize active selection</button>
+	<button class="view-buttons"
+		on:click={async () => {
+			if (activeSelection.length) {
+				showVisualization = true;
+			}
+			else {
+				window.alert("Please select at least one record to visualize");
+			}
+		}}
+	>
+	{#if (loadingVisualization)}
+		<span class="loading-spinner" />
+	{:else}
+		Visualize active selection
+	{/if}
+</button>
 </div>
 
 <style>
+	.selected {
+		background-color: burlywood;
+	}
+
+	.selected:hover {
+		background-color: bisque;
+	}
+	.unselected:hover {
+		background-color: bisque;
+	}
+	.unselected {
+		background-color: beige;
+	}
 	ul.li-tags {
 		list-style: none;
 		margin: 0;
