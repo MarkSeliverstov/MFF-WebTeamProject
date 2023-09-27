@@ -31,7 +31,7 @@
 			cy.style()
 				.selector('node')
 				.style({
-					'background-color': (node) => getColorForStatus(node.data('status')),
+					'background-color': (node) => getColorByStatusFrequency(node.data()),
 					width: '35px',
 					height: '35px',
 					label: 'data(id)'
@@ -170,16 +170,16 @@
 		cy.userZoomingEnabled(true);
 	}
 
-	function getColorForStatus(status: string): string {
-		switch (status) {
-			case 'notYetCrawled':
-				return 'gray';
-			case 'success':
+	function getColorByStatusFrequency(nodeData: any): string {
+		switch (Object.keys(nodeData).reduce((a, b) => (nodeData[a] > nodeData[b] ? a : b))) {
+			case 'successCount':
 				return 'green';
-			case 'notValid':
-				return 'orange';
-			case 'failed':
+			case 'failedCount':
 				return 'red';
+			case 'invalidCount':
+				return 'orange';
+			case 'notCrawledCount':
+				return 'gray'
 			default:
 				return 'gray';
 		}
