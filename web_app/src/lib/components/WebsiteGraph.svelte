@@ -58,22 +58,7 @@
 			'mid-target-arrow-shape': 'triangle',
 			'arrow-scale': 1.5
 		})
-		.update();
-
-		var layout = cy.layout({
-		name: 'cose',
-		animate: false,
-		nodeRepulsion(node) {
-			return 50000000;
-		},
-		idealEdgeLength(edge) {
-			return 512;
-		},
-		edgeElasticity(edge) {
-			return 256;
-		}
-		});
-		layout.run();
+		.update();		
 
 		cy.removeListener('click', 'node');
 		cy.on('click', 'node', (event) => showNodeDetail(event, cy));
@@ -100,21 +85,49 @@
 					node.addClass('root');
 				}				
 			})
+			var layout = cy.layout({
+				name: 'cose',
+				animate: false,
+				nodeRepulsion(node) {
+					return 50000000;
+				},
+				idealEdgeLength(edge) {
+					return 512;
+				},
+				edgeElasticity(edge) {
+					return 256;
+				},
+				avoidOverlap: true,
+			});
+
+			layout.on("layoutstop", () => {
+						cy.nodes().forEach(node => {
+							node.unlock();
+						})
+					})
+			
+			layout.run();
 
 			applyStylesAndLayout(cy);
 			
 			let i = 0;
 			const batch = 1;
 			updateInterval = setInterval(() => {
-				console.log(`i=${i}, store length=${$executionsStore.length}`)
 				if (i < $executionsStore.length) {
-					const endIndex = Math.min(i+batch, $executionsStore.length)
+					const endIndex = Math.min(i+batch, $executionsStore.length);
 					getNodesAndEdges($executionsStore.slice(i, endIndex));
+
+					cy.nodes().forEach(node => {
+						node.lock();
+					})
+
 					cy.add({
 					nodes: $websiteGraphData.nodes,
 					edges: $websiteGraphData.edges
 					});	
-					applyStylesAndLayout(cy);
+					layout.run();
+
+				
 					i += batch;
 				}
 			}, 2000);			
@@ -199,14 +212,16 @@
 
 	function getColorForStatus(status: string): string {
 		switch (status) {
-			case 'notYetCrawled':
-				return 'gray';
+			case 'running':
+				return 'blue';
 			case 'success':
 				return 'green';
 			case 'notValid':
 				return 'orange';
 			case 'failed':
 				return 'red';
+			case 'queued':
+				return 'purple'
 			default:
 				return 'gray';
 		}

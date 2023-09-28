@@ -165,7 +165,6 @@
 				activeExecutions = [...activeExecutions , ...lastExecutionsMap.get(record.id)];
 			}
 		}
-		console.log(activeExecutions);
 		executionsStore.set(activeExecutions);
 	}
 
@@ -258,7 +257,6 @@
 					<div class="record-buttons-container">
 						{#if (websiteRecord.lastExecution)}
 						<button class="view-buttons {websiteRecord.checked ? "selected" : "unselected"}" on:click={() => {
-								console.log(activeSelection);
 								websiteRecord.checked = !websiteRecord.checked;
 								if (websiteRecord.checked && activeSelection.indexOf(websiteRecord) === -1) {
 									activeSelection.push(websiteRecord);
@@ -293,7 +291,6 @@
 									await refreshRecords()
 								}, 2000);
 								waitingForCrawler = false;
-								console.log("end of click fn")
 							}}
 						class="start-crawling-button view-buttons">
 						{#if (waitingForCrawler)}
