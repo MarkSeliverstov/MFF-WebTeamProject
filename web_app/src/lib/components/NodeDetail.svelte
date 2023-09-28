@@ -1,6 +1,22 @@
 <script lang='ts'>
+    import type { WebsiteRecord, Periodicity } from '$lib/types';
+    import RecordModal from "./RecordModal.svelte";
     export let node : any;
     export let onClose : any;
+    let showModal = false;
+    let newWebsiteRecord = {
+        url: node.id,
+        periodicity: {
+			minutes: 0,
+			hours: 0,
+			days: 0,
+        } as Periodicity,
+        regexp: "",
+        label: "",
+        active: false,
+        tags: [],
+        latestGroupId: 0,
+    } as WebsiteRecord;
 </script>
 
 <div id="nodeDetail">
@@ -21,9 +37,16 @@
         {/each}
     </ul>
     {/if}
+    {#if node.status === 'notValid'} 
+        <button on:click={() => showModal = true} class="view-buttons">Add record</button>
+    {/if}
+    {#if showModal}
+        <RecordModal bind:showModal bind:websiteRecord={newWebsiteRecord} create={true} />
+    {/if}
 </div>
 
 <style>
+    
     #nodeDetail {
             position: fixed;
             z-index: 100;

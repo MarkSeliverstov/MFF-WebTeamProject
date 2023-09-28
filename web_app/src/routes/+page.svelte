@@ -8,10 +8,9 @@
 	import ExecutionModal from '$components/ExecutionModal.svelte';
 	import VisualizationModal from '$components/VisualizationModal.svelte';
 	import { invalidateAll } from '$app/navigation';
+	import { executionsStore } from '$lib/graphDataStore';
 
 	export let data: PageData;
-
-	let loadingVisualization = false;
 
 	let waitingForCrawler = false;
 	
@@ -161,14 +160,19 @@
 	
 	function returnActiveExecutions() {
 		let activeExecutions : Execution[] = [];
-		for(const activeId of activeSelection) {
-			if(lastExecutionsMap.has(activeId)) {
-				activeExecutions = [...activeExecutions , ...lastExecutionsMap.get(activeId)!];
+		for(const record of activeSelection) {
+			if(lastExecutionsMap.has(record.id)) {
+				activeExecutions = [...activeExecutions , ...lastExecutionsMap.get(record.id)];
 			}
 		}
-		return activeExecutions;
+		console.log(activeExecutions);
+		executionsStore.set(activeExecutions);
 	}
-	
+
+	function returnRootExecutions() {
+		return activeSelection.map((record) => record.lastExecution)
+	}
+
 	$: paginatedItems = paginate({ items: shownRecords, pageSize, currentPage });
 </script>
 
@@ -254,12 +258,13 @@
 					<div class="record-buttons-container">
 						{#if (websiteRecord.lastExecution)}
 						<button class="view-buttons {websiteRecord.checked ? "selected" : "unselected"}" on:click={() => {
+								console.log(activeSelection);
 								websiteRecord.checked = !websiteRecord.checked;
-								if (websiteRecord.checked && activeSelection.indexOf(websiteRecord.id) === -1) {
-									activeSelection.push(websiteRecord.id);
+								if (websiteRecord.checked && activeSelection.indexOf(websiteRecord) === -1) {
+									activeSelection.push(websiteRecord);
 								}
 								else {
-									activeSelection = activeSelection.filter((record) => record != websiteRecord.id);
+									activeSelection = activeSelection.filter((record) => record.id != websiteRecord.id);
 								}								
 							}}							
 							>
@@ -273,18 +278,36 @@
 						
 						<button
 						on:click={async () => { 
-							waitingForCrawler = true;
-							await fetch(`http://localhost:5000/api/crawler/start/${websiteRecord.id}`);
-							setTimeout(async () => {
-								await refreshRecords()
-							}, 300);
-							waitingForCrawler = false;}
-							}
+								waitingForCrawler = true;
+								let method = "start";
+								if(websiteRecord.lastExecution) {
+									if(websiteRecord.lastExecution.status === "running") {
+										method = "abort";
+									}
+								}
+								else {
+									method = "start";
+								}
+								await fetch(`http://localhost:5000/api/crawler/${method}/${websiteRecord.id}`);
+								setTimeout(async () => {
+									await refreshRecords()
+								}, 2000);
+								waitingForCrawler = false;
+								console.log("end of click fn")
+							}}
 						class="start-crawling-button view-buttons">
 						{#if (waitingForCrawler)}
 							<span class="loading-spinner" />
 						{:else}
-							Start crawling
+							{#if (websiteRecord.lastExecution)}
+								{#if (websiteRecord.lastExecution.status === "running")}
+									Stop crawling
+								{:else}
+									Start crawling
+								{/if}
+							{:else}
+								Start crawling
+							{/if}
 						{/if}
 						</button>
 						
@@ -338,13 +361,13 @@
 	{/if}
 
 	{#if showModal && websiteRecordToEdit === null}
-		<RecordModal bind:showModal />
+		<RecordModal bind:showModal create={true}/>
 	{:else if showModal && websiteRecordToEdit != null}
 		<RecordModal bind:showModal bind:websiteRecord={websiteRecordToEdit} />
 	{/if}
 
 	{#if showVisualization}
-		<VisualizationModal bind:showModal={showVisualization} executions={returnActiveExecutions()} />
+		<VisualizationModal bind:showModal={showVisualization} rootExecutions={returnRootExecutions()}  />
 	{/if}
 </body>
 
@@ -374,17 +397,14 @@
 		on:click={async () => {
 			if (activeSelection.length) {
 				showVisualization = true;
+				returnActiveExecutions();
 			}
 			else {
 				window.alert("Please select at least one record to visualize");
 			}
 		}}
 	>
-	{#if (loadingVisualization)}
-		<span class="loading-spinner" />
-	{:else}
-		Visualize active selection
-	{/if}
+	Visualize active selection
 </button>
 </div>
 

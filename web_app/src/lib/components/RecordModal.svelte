@@ -5,6 +5,7 @@
 	import { invalidateAll } from '$app/navigation';
 
 	export let showModal : boolean;
+	export let create : boolean = false;
 
 	// null value means that the modal has been passed no website record to edit,
 	// therefore it is supposed to create one and vice versa
@@ -121,7 +122,7 @@
 		const stringifiedRecord = JSON.stringify(recordData);			
 
 		
-		if (websiteRecord === null) {
+		if (websiteRecord === null || create) {
 			fetch("/api/record/", {
 				method: "POST",
 				headers: {"Content-Type": "application/json",
@@ -147,7 +148,8 @@
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-noninteractive-element-interactions -->
-<dialog
+<dialog 
+	id="recordModalDialog"
 	bind:this={dialog}
 	on:close={() => (showModal = false)}
 >
@@ -238,7 +240,7 @@
 		<!-- TODO: Time+status of last execution goes here -->
 
 		<button class="view-buttons" on:click={submitRecord}>
-			{#if (websiteRecord === null)}
+			{#if (create)}
 				Create
 			{:else}
 				Edit

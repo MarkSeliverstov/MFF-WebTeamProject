@@ -1,23 +1,23 @@
 <script lang="ts">
-	// TRUE FOR WEBSITE VIEW; FALSE FOR DOMAIN VIEW
-	import { viewModeStore } from '$lib/graphDataStore';
+	// TRUE FOR LIVE PREVIEW; FALSE FOR STATIC
+	import { livePreview } from '$lib/graphDataStore';
 	import { onMount } from 'svelte';
 	onMount(() => {
-		viewModeStore.set(true);
+		livePreview.set(false);
 	});
 </script>
 
-<button id="viewModeButton" on:click={() => viewModeStore.update((mode) => !mode)}>
-	{#if $viewModeStore}
-		Website view
+<button id="viewModeButton" on:click={() => livePreview.update((mode) => !mode)}>
+	{#if $livePreview}
+		Live preview
 	{:else}
-		Domain view
+		Static
 	{/if}
 </button>
 
 <style>
 	#viewModeButton {
-		width: 10vw;
+        width: 10vw;		
 		border: solid medium black;
 		border-radius: 5px;
 		padding: 10px;

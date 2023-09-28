@@ -1,4 +1,5 @@
 import {writable} from 'svelte/store';
+import type { Execution } from '$lib/types';
 
 export const websiteGraphData = writable<{ 
     nodes: {
@@ -33,4 +34,8 @@ export const domainGraphData = writable<{
         }}[]
 }>({ nodes: [], edges: []})
 
+export const executionsStore = writable<Execution[]>([]);
+
 export const viewModeStore = writable(true);
+
+export const livePreview = writable(false);

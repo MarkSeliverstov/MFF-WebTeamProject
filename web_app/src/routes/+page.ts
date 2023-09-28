@@ -20,7 +20,6 @@ export const load: PageLoad = async ({ fetch }) => {
 				lastExecutionsMap.set(record.id, lastExecutions);
 				const lastExecution = lastExecutions.find((execution: Execution) => execution.root);
 				record.lastExecution = lastExecution;
-				//console.log(record);
 			} catch(error) {
 				console.log("Error while fetching last execution for record: " + error);
 				record.lastExecution = null;

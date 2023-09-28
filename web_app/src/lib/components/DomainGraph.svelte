@@ -4,11 +4,9 @@
 	import { domainGraphData } from '$lib/graphDataStore';
 	import { onMount } from 'svelte';
 	import NodeDetail from './NodeDetail.svelte';
-
 	onMount(() => {
 		// check if the graph data is available
 		if ($domainGraphData.nodes.length && $domainGraphData.edges.length) {
-			console.log($domainGraphData.nodes);
 			var cy = cytoscape({
 				container: document.getElementById('cytoscape')
 			});
@@ -129,7 +127,7 @@
 	
 			//create a new node detail
 			const node = event.target.data();
-			const target = document.getElementById('cytoscape')!;
+			const target = document.getElementById('visualizationModalDialog')!;
 			const tooltip = new NodeDetail({
 				target: target,
 				props: {
