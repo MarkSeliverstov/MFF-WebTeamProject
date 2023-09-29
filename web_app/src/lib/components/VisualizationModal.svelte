@@ -4,7 +4,7 @@
     import DomainGraph from "$components//DomainGraph.svelte";
 	import LivePreviewButton from "./LivePreviewButton.svelte";
 	import type { Execution } from '$lib/types';
-    import { viewModeStore } from '$lib/graphDataStore';
+    import { viewModeStore, websiteGraphData, domainGraphData, websiteNodes, websiteEdges, domainEdges, domainNodes} from '$lib/graphDataStore';
 	import getNodesAndEdges from "$lib/getNodesAndEdges";
     export let showModal : boolean;
 	export let rootExecutions : Execution[];
@@ -14,13 +14,76 @@
 	$: if (!showModal) dialog.close();
 
 	getNodesAndEdges(rootExecutions);
+	const mapWeb = new Map<
+		string,
+		{
+			data: {
+				id: string;
+				status: string;
+                root: boolean;
+				title: string | undefined;
+				crawlTimeStart: number | undefined;
+				crawlTimeEnd: number | undefined;
+				links: string[];
+			};
+		}
+	>();
+	const mapDomain = new Map<
+		string,
+		{
+			data: {
+				id: string;
+                title: string;
+				links: string[];
+                root: boolean;
+                successCount: number;
+                failedCount: number;
+                invalidCount: number;
+                notCrawledCount: number;
+			};
+		}
+	>();
+	const set = new Set();
 </script>
 
 
 
 <dialog id="visualizationModalDialog"
 	bind:this={dialog}
-	on:close={() => (showModal = false)}>
+	on:close={() => {
+		showModal = false;
+		websiteEdges.update((array) => {
+			array = [];
+			return array;
+		});
+		domainEdges.update((set) => {
+			set.clear();
+			return set;
+		});
+		domainNodes.update((map) => {
+			map.clear();
+			return map;
+		});
+		websiteGraphData.update((object) => {
+			object.nodes = [];
+			object.edges = [];
+			return object;
+		});
+		websiteNodes.update((map) => {
+			map.clear();
+			return map;
+		});
+		$domainGraphData = {
+			nodes: [],
+			edges: []
+		}
+		console.log($websiteGraphData);
+		console.log($domainGraphData);
+		console.log($websiteNodes);
+		console.log($websiteEdges);
+		console.log($domainNodes);
+		console.log($domainEdges);
+}}>
 
 	<nav>
 		<div id="closeButtonContainer"><button class="view-buttons close-button" on:click={() => dialog.close()}>X</button></div>

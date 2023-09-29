@@ -209,6 +209,33 @@ export default class ExecutionModel extends Model<Execution> {
 		}
 	}
 
+	async getCompletelyAll(): Promise<Execution[] | Error> {
+		try {
+			const result = await this.collection.find().toArray();
+			return result.map(
+				(item) =>
+					({
+						id: item._id,
+						ownerId: item.ownerId,
+						groupId: item.groupId,
+						root: item.root,
+						url: item.url,
+						crawlTimeStart: item.crawlTimeStart,
+						crawlTimeEnd: item.crawlTimeEnd,
+						status: item.status,
+						sitesCrawled: item.sitesCrawled,
+						links: item.links,
+						title: item.title
+					} as Execution)
+			);
+		} catch (error) {
+			return {
+				code: 500,
+				message: 'Failed to get all executions'
+			} as Error;
+		}
+	}
+
 	async getAllByOwnerIdAndGroupId(ownerId: string, groupId: number): Promise<Execution[] | Error> {
 		try {
 			if (!ObjectId.isValid(ownerId)) {

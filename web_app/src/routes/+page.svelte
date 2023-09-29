@@ -8,11 +8,11 @@
 	import ExecutionModal from '$components/ExecutionModal.svelte';
 	import VisualizationModal from '$components/VisualizationModal.svelte';
 	import { invalidateAll } from '$app/navigation';
-	import { executionsStore } from '$lib/graphDataStore';
+	import { executionsStore, allExecutionsStore, allRecordsStore, activeSelectionStore } from '$lib/graphDataStore';
 
 	export let data: PageData;
 
-	let waitingForCrawler = false;
+	let CrawlerWaitingId: number | null = null;
 	
 	let showModal = false;
 	let websiteRecordToEdit: WebsiteRecord | null = null;
@@ -26,13 +26,14 @@
 	let currentPage = 1;
 	let pageSize = 10;
 
-	// fetch website records from db
-	$: ({ websiteRecords, lastExecutionsMap, executions } = data);
-	
+	// fetch website records from db COMMENTED TO TRY OUT STORES IN GRAPHDATA
+	//$: ({ websiteRecords, lastExecutionsMap, executions: allExecutionsStore } = data);
+	$: ({lastExecutionsMap} = data);
+
 	
 	// shallow copy of record array fetched from db; is filtered by search bar
 	let shownRecords: WebsiteRecord[];
-	$: (shownRecords = [...websiteRecords]), searchRecords(), sortRecords();
+	$: (shownRecords = [...$allRecordsStore]), searchRecords(), sortRecords();
 
 	let searchTerm = '';
 	let searchMethods: string[] = [];
@@ -57,7 +58,7 @@
 
 	// search function
 	const searchRecords = () => {
-		return (shownRecords = (websiteRecords as WebsiteRecord[]).filter((record) => {
+		return (shownRecords = ($allRecordsStore as WebsiteRecord[]).filter((record) => {
 			// if no filter criteria are selected, show all records
 			if (!searchMethods.length) {
 				return true;
@@ -145,12 +146,12 @@
 
 	let showExecutions = false;
 	let showExecutionsForRecord = false;
-	let executions : Execution[] = [];
+	//let allExecutionsStore : Execution[] = [];
 
 	let executionParentRecord : WebsiteRecord | null = null; // passed to a record-specific execution showing
 	
 	function filterExecutionsForRecord() {
-		return executions.filter((execution) => {
+		return $allExecutionsStore.filter((execution) => {
 			 return execution.ownerId === executionParentRecord!.id;
 		})
 	}	
@@ -161,7 +162,7 @@
 	function returnActiveExecutions() {
 		let activeExecutions : Execution[] = [];
 		for(const record of activeSelection) {
-			if(lastExecutionsMap.has(record.id)) {
+			if(lastExecutionsMap.has(record.id!.toString())) {
 				activeExecutions = [...activeExecutions , ...lastExecutionsMap.get(record.id)];
 			}
 		}
@@ -276,7 +277,7 @@
 						
 						<button
 						on:click={async () => { 
-								waitingForCrawler = true;
+								CrawlerWaitingId = websiteRecord.id
 								let method = "start";
 								if(websiteRecord.lastExecution) {
 									if(websiteRecord.lastExecution.status === "running") {
@@ -287,13 +288,12 @@
 									method = "start";
 								}
 								await fetch(`http://localhost:5000/api/crawler/${method}/${websiteRecord.id}`);
-								setTimeout(async () => {
-									await refreshRecords()
-								}, 2000);
-								waitingForCrawler = false;
+								await new Promise(resolve => setTimeout(resolve, 2000))
+								await refreshRecords()
+								CrawlerWaitingId = null
 							}}
 						class="start-crawling-button view-buttons">
-						{#if (waitingForCrawler)}
+						{#if (websiteRecord.id == CrawlerWaitingId)}
 							<span class="loading-spinner" />
 						{:else}
 							{#if (websiteRecord.lastExecution)}
@@ -337,12 +337,11 @@
 								})
 
 								// make the change appear before fetching new data from db
-								websiteRecords = websiteRecords.filter((record) => record != websiteRecord);
-								executions = executions.filter((execution) => execution.ownerId != websiteRecord.id);
+								allRecordsStore.set($allRecordsStore.filter((record) => record != websiteRecord));
+								allExecutionsStore.set($allExecutionsStore.filter((execution) => execution.ownerId != websiteRecord.id));
 							}}
 							class="view-buttons">Delete
 						</button>
-					
 					</div>					
 				</li>
 			{/each}
@@ -354,7 +353,7 @@
 	{/if}
 
 	{#if showExecutions}
-		<ExecutionModal bind:showModal={showExecutions} executions={executions}/>
+		<ExecutionModal bind:showModal={showExecutions} executions={$allExecutionsStore}/>
 	{/if}
 
 	{#if showModal && websiteRecordToEdit === null}
@@ -393,6 +392,7 @@
 	<button class="view-buttons"
 		on:click={async () => {
 			if (activeSelection.length) {
+				activeSelectionStore.set(activeSelection);
 				showVisualization = true;
 				returnActiveExecutions();
 			}

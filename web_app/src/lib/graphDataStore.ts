@@ -1,5 +1,5 @@
 import { writable } from 'svelte/store';
-import type { Execution } from '$lib/types';
+import type { Execution, WebsiteRecord } from '$lib/types';
 
 export const websiteNodes = writable<
 	Map<
@@ -84,7 +84,12 @@ export const domainEdges = writable<
 			target: string;
 		};
 	}>
->(new Set());
+>(new Set<{
+		data: {
+			source: string;
+			target: string;
+		};
+	}>());
 
 export const executionsStore = writable<Execution[]>([]);
 
@@ -128,3 +133,10 @@ export const domainGraphData = writable<{
 	}[];
 }>({ nodes: [], edges: [] });
 
+export const allExecutionsStore = writable<Execution[]>([]);
+
+export const allRecordsStore = writable<WebsiteRecord[]>([]);
+
+export const lastExecutionsMapStore = writable<Map<string, Execution[]>>();
+
+export const activeSelectionStore = writable<WebsiteRecord[]>();

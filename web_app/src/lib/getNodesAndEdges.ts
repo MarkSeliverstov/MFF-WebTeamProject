@@ -32,11 +32,12 @@ export default function getNodesAndEdges(executions: Execution[]) {
 		let matches = sourceNode.url.match(/^https?\:\/\/([^\/:?#]+)(?:[\/:?#]|$)/i)!;
 		const domain = matches && matches[1];
 		const uniqueLinks = new Set<string>();
-		domainNodes.subscribe((map) => {
+		const unsubscribeDomainNodes = domainNodes.subscribe((map) => {
 			if (map.has(domain)) {
 				switch (sourceNode.status) {
 					case 'success':
 						map.get(domain)!.data.successCount++;
+
 						break;
 					case 'failed':
 						map.get(domain)!.data.failedCount++;
@@ -53,6 +54,7 @@ export default function getNodesAndEdges(executions: Execution[]) {
 				}
 			}
 		});
+		unsubscribeDomainNodes();
 
 		sourceNode.links.forEach((targetUrl) => {
 			matches = targetUrl.match(/^https?\:\/\/([^\/:?#]+)(?:[\/:?#]|$)/i)!;
@@ -84,7 +86,7 @@ export default function getNodesAndEdges(executions: Execution[]) {
 				});
 
 				// nodes that are created not by the crawler but to serve as target nodes for edges
-				domainNodes.subscribe((map) => {
+				const unsubscribeDomainNodes = domainNodes.subscribe((map) => {
 					if (!map.has(targetDomain)) {
 						map.set(targetDomain, {
 							data: {
@@ -100,10 +102,11 @@ export default function getNodesAndEdges(executions: Execution[]) {
 						});
 					}
 				});
+				unsubscribeDomainNodes();
 			}
 
 			// create nodes for links that were not yet crawled
-			websiteNodes.subscribe((map) => {
+			const unsubscribeWebsiteNodes = websiteNodes.subscribe((map) => {
 				if (!map.has(targetUrl)) {
 					map.set(targetUrl, {
 						data: {
@@ -118,7 +121,8 @@ export default function getNodesAndEdges(executions: Execution[]) {
 					});
 				}
 			});
-			domainNodes.subscribe((map) => {
+			unsubscribeWebsiteNodes();
+			const unsubscribeDomainNodes = domainNodes.subscribe((map) => {
 				if (!map.has(domain)) {
 					const domainNode = {
 						data: {
@@ -141,22 +145,27 @@ export default function getNodesAndEdges(executions: Execution[]) {
 					map.get(domain)!.data.links = Array.from(uniqueLinks);
 				}
 			});
+			unsubscribeDomainNodes();
 		});
 	});
 	
-	websiteNodes.subscribe((map) => {
-		websiteEdges.subscribe((array) => {
+	const unsubscribeWebsiteNodes = websiteNodes.subscribe((map) => {
+		const unsubscribeWebsiteEdges = websiteEdges.subscribe((array) => {
 			websiteGraphData.set({ nodes: Array.from(map.values()), edges: array });
 		}
 		);
+		unsubscribeWebsiteEdges();
 	}
 	);
+	unsubscribeWebsiteNodes();
 
-	domainNodes.subscribe((mapNodes) => {
-		domainEdges.subscribe((setEdges) => {
+	const unsubscribeDomainNodes = domainNodes.subscribe((mapNodes) => {
+		const unsubscribeDomainEdges = domainEdges.subscribe((setEdges) => {
 			domainGraphData.set({ nodes: Array.from(mapNodes.values()), edges: Array.from(setEdges) });
 		}
 		);
+		unsubscribeDomainEdges();
 	}
 	);
+	unsubscribeDomainNodes();
 }

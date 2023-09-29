@@ -119,11 +119,11 @@ export class Crawler {
 
     // Initialize the first crawling page
     this.pagesToCrawl.push(this.initCrawlingWebPage(baseUrl));
-
     console.log(
       `(Crawler ${threadId}) Starting crawling ${this.recordId} record`
     );
     while (this.pagesToCrawl.length !== 0) {
+      await new Promise(resolve => setTimeout(resolve, 5000));
       if (this.isAborted) break;
       this.currentCrawlingWebPage = this.pagesToCrawl.shift();
       if (this.currentCrawlingWebPage === undefined) continue;
