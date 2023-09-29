@@ -77,12 +77,6 @@
 			nodes: [],
 			edges: []
 		}
-		console.log($websiteGraphData);
-		console.log($domainGraphData);
-		console.log($websiteNodes);
-		console.log($websiteEdges);
-		console.log($domainNodes);
-		console.log($domainEdges);
 }}>
 
 	<nav>

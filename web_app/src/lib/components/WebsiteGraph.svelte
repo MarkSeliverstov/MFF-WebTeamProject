@@ -6,13 +6,69 @@
 	import NodeDetail from './NodeDetail.svelte';
 	import getNodesAndEdges from '$lib/getNodesAndEdges';
 	import { livePreview } from '$lib/graphDataStore';
-	const cola  = import("cytoscape-cola");
+	import cola from 'cytoscape-cola';
 	cytoscape.use( cola );
-
+	
 	let cy: cytoscape.Core;
-
-
+	
+	
 	function addEventListeners(cy : cytoscape.Core) {
+		cy.removeListener('click', 'node');
+		cy.on('click', 'node', (event) => showNodeDetail(event, cy));
+	}
+
+	function applyStylesAndLayout(cy : cytoscape.Core) {
+		cy.style()
+		.selector('node')
+		.style({
+			'background-color': (node) => getColorForStatus(node.data('status')),
+			width: '35px',
+			height: '35px',
+			label: 'data(id)'
+		})
+		.selector('node.detailedView')
+		.style({
+			width: '90px',
+			height: '90px',
+			'border-color': 'black',
+			'border-width': '10px',
+			'font-weight': 'bold',
+			'font-size': 20,
+			'text-transform': 'uppercase',
+			'text-background-color': 'white',
+			'text-background-opacity': 1,
+			'text-background-shape': 'roundrectangle',
+			'text-border-opacity': 1,
+			'text-border-color': 'black',
+			'text-border-width': 5,
+			'text-background-padding': '5px',
+			'z-index': 5
+		})
+		.selector('node.root')
+		.style({
+			width: '75px',
+			height: '75px',
+			'border-color': 'black',
+			'border-width': '5px',
+			'font-weight': 'bold',
+			'font-size': 20,
+			'text-transform': 'uppercase',
+			'text-background-color': 'beige',
+			'text-background-opacity': 1,
+			'text-background-shape': 'roundrectangle',
+			'text-background-padding': '5px',
+			'z-index': 5
+		})
+		.selector('edge')
+		.style({
+			'curve-style': 'haystack',
+			'line-color': 'gray',
+			'mid-target-arrow-color': 'black',
+			'mid-target-arrow-shape': 'triangle',
+			'arrow-scale': 1.5
+		})
+		.update();		
+
 		cy.removeListener('click', 'node');
 		cy.on('click', 'node', (event) => showNodeDetail(event, cy));
 	}
@@ -94,19 +150,21 @@
 			
 			style.update();
 
-			var layout = cy.layout({
-				name: 'cose',
-				animate: false,
-				nodeRepulsion(node) {
-					return 50000000;
-				},
-				idealEdgeLength(edge) {
-					return 512;
-				},
-				edgeElasticity(edge) {
-					return 256;
-				},
-			});
+			const layoutConfig = {
+				name: "cola",
+				handleDisconnected: true,
+				animate: true,
+				avoidOverlap: true,
+				infinite: false,
+				unconstrIter: 1,
+				userConstIter: 0,
+				allConstIter: 1,
+				padding: 50,
+				ready: e => {
+					e.cy.fit()
+					e.cy.center()
+			},};
+			const layout = cy.makeLayout(layoutConfig);
 
 			layout.on("layoutstop", () => {
 						cy.nodes().forEach(node => {
@@ -118,9 +176,10 @@
 			addEventListeners(cy);
 			
 			let i = 0;
+			let lastNodesCount = 0;
+			let lastEdgesCount = 0;
 			const batch = 1;
 			updateInterval = setInterval( async () => {
-				console.log($websiteGraphData.nodes.forEach(node => console.log(`${node.data.status}, ${node.data.id}`)));
 				if ($livePreview){
 					executionsStore.set([]);
 					let activeExecutions : Execution[] = [];
@@ -136,53 +195,46 @@
 						}
 					}
 					executionsStore.set(activeExecutions);
-					console.log(`i=${i}, executionsStore.length = ${$executionsStore.length}`)
 				}
 				if (i < $executionsStore.length) {
 					const endIndex = Math.min(i+batch, $executionsStore.length);
 					getNodesAndEdges($executionsStore.slice(i, endIndex));
-					
-					cy.nodes().forEach(node => {
-						node.lock();
-					})
-					cy.add({
-						nodes: $websiteGraphData.nodes,
-						edges: $websiteGraphData.edges
-					})
-					
-					cy.nodes(":unlocked").closedNeighborhood().unlock();
-					cy.nodes(":unlocked").layout({
-						name: 'random',
-						fit: false,	
-						padding:100,
-						boundingBox: undefined,
-						transform: (node, position) => {
-							return {
-								x: position.x + i + (Math.random() * i * 10) * 20,
-								y: position.y + i + (Math.random() * i * 10) * 20
+					if($websiteGraphData.nodes.length !== lastNodesCount) {
+						$websiteGraphData.nodes.forEach(node => {
+							const cyNode = cy.getElementById(node.data.id);
+							if (cyNode.length !== 0) {
+								const backgroundColor = cyNode.style()['background-color'];
+								const expectedColor = getColorForStatus(node.data.status);
+								if (backgroundColor !== expectedColor) {
+									cy.remove(cyNode);
+								}
 							}
-						}
-					}).run();
-					// cy.nodes().style(
-					// 	'background-color', (node) => getColorForStatus(node.data('status')),
-					// 	);
-					
-					const layoutConfig = {
-						name: "cola",
-						handleDisconnected: true,
-						animate: true,
-						avoidOverlap: true,
-						infinite: false,
-						unconstrIter: 1,
-						userConstIter: 0,
-						allConstIter: 1,
-						ready: e => {
-							e.cy.fit()
-							e.cy.center()
-					},};
-					const layout = cy.makeLayout(layoutConfig);
-    				layout.run();
-					cy.nodes().unlock();
+						});
+					}
+					if($websiteGraphData.nodes.length !== lastNodesCount || $websiteGraphData.edges.length !== lastEdgesCount) {
+						cy.add({
+							nodes: $websiteGraphData.nodes,
+							edges: $websiteGraphData.edges
+						})
+						const layoutConfig = {
+							name: "cola",
+							handleDisconnected: true,
+							animate: true,
+							avoidOverlap: true,
+							infinite: false,
+							unconstrIter: 1,
+							userConstIter: 0,
+							allConstIter: 1,
+							padding: 50,
+							ready: e => {
+								e.cy.fit()
+								e.cy.center()
+						},};
+						const layout = cy.makeLayout(layoutConfig);
+						layout.run();
+					}
+					lastNodesCount = $websiteGraphData.nodes.length;
+					lastEdgesCount = $websiteGraphData.edges.length;
 					i += batch;
 				}
 			}, 2000);			
