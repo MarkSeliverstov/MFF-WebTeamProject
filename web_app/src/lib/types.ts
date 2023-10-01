@@ -84,7 +84,7 @@ export interface Execution {
 	url: string; // Url of the page that was crawled
 	crawlTimeStart: number;
 	crawlTimeEnd: number;
-	status: 'success' | 'failed' | 'running' | 'queued';
+	status: 'success' | 'failed' | 'running' | 'queued' | 'notValid';
 	sitesCrawled: number;
 	links: string[]; // Links that were found on the page,
 	title: string;
@@ -118,7 +118,8 @@ export function isExecutionWithoutId(obj: unknown): obj is Execution {
 			(execution.status === 'success' ||
 				execution.status === 'failed' ||
 				execution.status === 'running' ||
-				execution.status === 'queued') &&
+				execution.status === 'queued' ||
+				execution.status === 'notValid') &&
 			typeof execution.sitesCrawled === 'number' &&
 			Array.isArray(execution.links) &&
 			execution.links.every((link) => typeof link === 'string') &&

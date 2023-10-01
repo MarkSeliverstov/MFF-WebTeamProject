@@ -75,9 +75,11 @@ const resolvers = {
 							if (!root_execution) {
 								throw new Error('No root execution found');
 							}
-
+							const map = new Map<string, boolean>();
+							
 							const links_to_nodes = (root_execution: Execution): Node[] => {
 								const nodes = [];
+								map.set(root_execution.url, true);
 								for (const link of root_execution.links) {
 									const next_execution: Execution | undefined = group_executions.find(
 										(execution: Execution) => execution.url === link
@@ -86,7 +88,9 @@ const resolvers = {
 									if (!next_execution) {
                                         continue;
                                     }
-
+									if (map.has(next_execution.url)) {
+										continue;
+									}
 									nodes.push({
 										title: next_execution.title,
 										url: next_execution.url,

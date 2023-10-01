@@ -35,8 +35,8 @@ export default class ExecutionModel extends Model<Execution> {
 				ownerId: execution.ownerId,
 				root: execution.root,
 				url: execution.url,
-				crawlTimeStart: new Long(execution.crawlTimeStart),
-				crawlTimeEnd: new Long(execution.crawlTimeEnd),
+				crawlTimeStart: Long.fromNumber(execution.crawlTimeStart),
+				crawlTimeEnd: Long.fromNumber(execution.crawlTimeEnd),
 				status: execution.status,
 				sitesCrawled: execution.sitesCrawled,
 				links: execution.links,
@@ -128,8 +128,8 @@ export default class ExecutionModel extends Model<Execution> {
 				ownerId: updatedItem.ownerId,
 				root: updatedItem.root,
 				url: updatedItem.url,
-				crawlTimeStart: new Long(updatedItem.crawlTimeStart),
-				crawlTimeEnd: new Long(updatedItem.crawlTimeEnd),
+				crawlTimeStart: Long.fromNumber(updatedItem.crawlTimeStart),
+				crawlTimeEnd: Long.fromNumber(updatedItem.crawlTimeEnd),
 				status: updatedItem.status,
 				sitesCrawled: updatedItem.sitesCrawled,
 				links: updatedItem.links,
@@ -205,6 +205,33 @@ export default class ExecutionModel extends Model<Execution> {
 			return {
 				code: 500,
 				message: 'Failed to get all root executions'
+			} as Error;
+		}
+	}
+
+	async getCompletelyAll(): Promise<Execution[] | Error> {
+		try {
+			const result = await this.collection.find().toArray();
+			return result.map(
+				(item) =>
+					({
+						id: item._id,
+						ownerId: item.ownerId,
+						groupId: item.groupId,
+						root: item.root,
+						url: item.url,
+						crawlTimeStart: item.crawlTimeStart,
+						crawlTimeEnd: item.crawlTimeEnd,
+						status: item.status,
+						sitesCrawled: item.sitesCrawled,
+						links: item.links,
+						title: item.title
+					} as Execution)
+			);
+		} catch (error) {
+			return {
+				code: 500,
+				message: 'Failed to get all executions'
 			} as Error;
 		}
 	}

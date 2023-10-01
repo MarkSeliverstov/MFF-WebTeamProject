@@ -29,7 +29,8 @@ export enum ExecutionStatus {
 	SUCCESS = "success",
 	FAILED = "failed",
 	RUNNING = "running",
-	QUEUED = "queued"
+	QUEUED = "queued",
+	NOTVALID = "notValid"
 }
 
 

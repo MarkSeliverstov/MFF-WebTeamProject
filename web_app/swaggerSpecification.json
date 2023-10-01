@@ -136,7 +136,7 @@
 									},
 									"status": {
 										"type": "string",
-										"enum": ["success", "failed", "running", "queued"]
+										"enum": ["success", "failed", "running", "queued", "notValid"]
 									},
 									"sitesCrawled": {
 										"type": "integer",
@@ -369,7 +369,7 @@
 									},
 									"status": {
 										"type": "string",
-										"enum": ["success", "failed", "running", "queued"]
+										"enum": ["success", "failed", "running", "queued", "notValid"]
 									},
 									"sitesCrawled": {
 										"type": "integer",
@@ -1217,10 +1217,10 @@
 				"tags": ["Crawler"]
 			}
 		},
-		"http://localhost:5000/api/crawler/stop/{id}": {
+		"http://localhost:5000/api/crawler/abort/{id}": {
 			"get": {
-				"summary": "Stop crawler for given website record ID",
-				"description": "Stop crawler for given website record ID",
+				"summary": "Abort crawler for given website record ID",
+				"description": "Abort crawler for given website record ID",
 				"parameters": [
 					{
 						"in": "path",
@@ -1366,7 +1366,7 @@
 					},
 					"status": {
 						"type": "string",
-						"enum": ["success", "failed", "running", "queued"]
+						"enum": ["success", "failed", "running", "queued", "notValid"]
 					},
 					"sitesCrawled": {
 						"type": "integer",

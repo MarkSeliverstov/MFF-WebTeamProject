@@ -78,9 +78,9 @@ class RecordManager{
                     const pereodicityMS = this.getMS(record.periodicity);
                     const lastTimeMS = lastRootExecution.crawlTimeEnd;
                     const timeNowMS = Date.now();
-                    
                     // Skip if time has not come
-                    if (timeNowMS >= lastTimeMS + pereodicityMS) continue;
+
+                    if (timeNowMS <= lastTimeMS + pereodicityMS) continue;
                     await this.runRecord(record);
                 } catch (error){
                     continue;
