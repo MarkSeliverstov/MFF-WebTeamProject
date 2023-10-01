@@ -1,12 +1,21 @@
 # Crawler backend
 
+## Getting started
+
+```shell
+npm install
+npm run buildAndStart
+```
+
+## Backend summary
+
 **How to get data from the web?**
 1. Fetch data from the web and parse it
 2. Create a browser and navigate to the page
 
-We will use the second approach because almost all sites are dynamic and require javascript to render the page. And also on almost every site, there is some kind of anti-bot protection, which can be bypassed by using a real browser.
+We will use the first approach because it is faster and more than half part of the sites contain static HTML.
 
-We recognize to use [Puppeteer](https://pptr.dev/) for this. Puppeteer is a Node library that provides a high-level API to control Chrome or Chromium over the DevTools Protocol. Puppeteer runs headless by default, but can be configured to run full (non-headless) Chrome or Chromium.
+Also we are using **workers** for crawling multiple pages at the same time.
 
 ### Execution management
 
