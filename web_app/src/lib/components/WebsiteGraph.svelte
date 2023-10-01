@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { Execution } from '$lib/types';
 	import cytoscape from 'cytoscape';
-	import { websiteGraphData, executionsStore, lastExecutionsMapStore, activeSelectionStore } from '$lib/graphDataStore';
+	import { websiteGraphData, executionsStore, lastExecutionsMapStore, activeSelectionStore, batchIndexStore } from '$lib/graphDataStore';
 	import { onMount, onDestroy } from 'svelte';
 	import NodeDetail from './NodeDetail.svelte';
 	import getNodesAndEdges from '$lib/getNodesAndEdges';
@@ -18,13 +18,17 @@
 	}
 
 	function applyStylesAndLayout(cy : cytoscape.Core) {
+		
 		cy.style()
 		.selector('node')
 		.style({
 			'background-color': (node) => getColorForStatus(node.data('status')),
 			width: '35px',
 			height: '35px',
-			label: 'data(id)'
+			label: (node) => {
+				if (node.data('title')) return node.data('title');
+				else return node.data('id');
+			}
 		})
 		.selector('node.detailedView')
 		.style({
@@ -87,7 +91,10 @@
 				'background-color': (node) => getColorForStatus(node.data('status')),
 				width: '35px',
 				height: '35px',
-				label: 'data(id)'
+				label: (node) => {
+				if (node.data('title')) return node.data('title');
+				else return node.data('id');
+				}			
 			})
 			.selector('node.detailedView')
 			.style({
@@ -158,8 +165,9 @@
 				infinite: false,
 				unconstrIter: 1,
 				userConstIter: 0,
+				edgeLength: 100,
 				allConstIter: 1,
-				padding: 50,
+				padding: 200,
 				ready: e => {
 					e.cy.fit()
 					e.cy.center()
@@ -175,7 +183,6 @@
 
 			addEventListeners(cy);
 			
-			let i = 0;
 			let lastNodesCount = 0;
 			let lastEdgesCount = 0;
 			const batch = 1;
@@ -184,6 +191,7 @@
 					executionsStore.set([]);
 					let activeExecutions : Execution[] = [];
 					for(const record of $activeSelectionStore) {
+						console.log(`latest = ${record.latestGroupId}`)
 						const request = await fetch(`/api/executions?ownerId=${record.id}&groupId=${record.latestGroupId}`);
 						const lastExecutions = await request.json();
 						lastExecutionsMapStore.update((map) => {
@@ -196,9 +204,9 @@
 					}
 					executionsStore.set(activeExecutions);
 				}
-				if (i < $executionsStore.length) {
-					const endIndex = Math.min(i+batch, $executionsStore.length);
-					getNodesAndEdges($executionsStore.slice(i, endIndex));
+				if ($batchIndexStore < $executionsStore.length) {
+					const endIndex = Math.min($batchIndexStore+batch, $executionsStore.length);
+					getNodesAndEdges($executionsStore.slice($batchIndexStore, endIndex));
 					if($websiteGraphData.nodes.length !== lastNodesCount) {
 						$websiteGraphData.nodes.forEach(node => {
 							const cyNode = cy.getElementById(node.data.id);
@@ -216,9 +224,16 @@
 							nodes: $websiteGraphData.nodes,
 							edges: $websiteGraphData.edges
 						})
+						cy.nodes().forEach((node) => {
+							const root = node.data("root");
+							if (root) {
+								node.addClass('root');
+							}		
+						})
 						const layoutConfig = {
 							name: "cola",
 							handleDisconnected: true,
+							nodeSpacing: function( node ){ return 50; },
 							animate: true,
 							avoidOverlap: true,
 							infinite: false,
@@ -235,7 +250,7 @@
 					}
 					lastNodesCount = $websiteGraphData.nodes.length;
 					lastEdgesCount = $websiteGraphData.edges.length;
-					i += batch;
+					batchIndexStore.update((value) => value += batch);
 				}
 			}, 2000);			
 		}

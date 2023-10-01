@@ -1,7 +1,7 @@
 <script lang='ts'>
     import type { WebsiteRecord, Periodicity } from '$lib/types';
     import RecordModal from "./RecordModal.svelte";
-    import {allRecordsStore, allExecutionsStore} from '$lib/graphDataStore';    
+    import {allRecordsStore, allExecutionsStore, livePreview, batchIndexStore, websiteGraphData, domainGraphData, websiteNodes, websiteEdges, domainEdges, domainNodes} from '$lib/graphDataStore'; 
     export let node : any;
     export let onClose : any;
     let showModal = false;
@@ -25,17 +25,16 @@
     // compute records from which this node's url has been crawled    
     if (node.status === "success" || node.status === "failed") { // only for crawled nodes        
         
-        console.log($allRecordsStore);
         let uniqueRecordIds = new Set<string>();
     
         for (const execution of $allExecutionsStore) {
             if (execution.url === node.id) {uniqueRecordIds.add(execution.ownerId.toString());}
-        }
-    
-        console.log(uniqueRecordIds);
-        recordsToShow = $allRecordsStore.filter((record) => {
-            uniqueRecordIds.has(record.id!.toString());
-        })
+        } 
+        for (const record of $allRecordsStore) {
+            if (uniqueRecordIds.has(record.id!.toString())) {
+                recordsToShow.push(record);
+            }
+        }           
     }
 </script>
 
@@ -44,11 +43,11 @@
     <h5>{node.id}</h5>
 
     {#if node.status} 
-        {#if (node.status === "success")}
+        {#if (node.status === "success" || node.status === "failed")}
             <h5>Status: {node.status}</h5>
             <h5>Crawl time: {(node.crawlTimeEnd-node.crawlTimeStart).toString()} seconds</h5>
             <h5>Website records that crawled this node:</h5>            
-            <ul>
+            <ul id="nodeDetailRecords">
                 {#each recordsToShow as websiteRecord}
                     <li class="website-record-li">
                         <div class="fields-container">
@@ -65,22 +64,61 @@
 									if(websiteRecord.lastExecution.status === "running") {
 										method = "abort";
 									}
+                                    else {
+                                        livePreview.update(() => true);
+                                    }
 								}
 								else {
-									method = "start";
+									method = "start"
+                                    livePreview.update(() => true);
 								}
-								await fetch(`http://localhost:5000/api/crawler/${method}/${websiteRecord.id}`);								
+								await fetch(`http://localhost:5000/api/crawler/${method}/${websiteRecord.id}`);	
+                                const request = await fetch(`/api/executions?ownerId=${websiteRecord.id}&groupId=${websiteRecord.latestGroupId+1}`);
+                                await new Promise(resolve => setTimeout(resolve, 2000))	
+						        const lastExecutions = await request.json();
+                                const exe = lastExecutions.find((exe) => exe.root==true);
+
+                                websiteRecord.lastExecution = exe
+                                websiteRecord.latestGroupId++;
 								waitingForCrawler = false;
+                                batchIndexStore.set(0);     
+                                websiteEdges.update((array) => {
+                                    array = [];
+                                    return array;
+                                });
+                                domainEdges.update((set) => {
+                                    set.clear();
+                                    return set;
+                                });
+                                domainNodes.update((map) => {
+                                    map.clear();
+                                    return map;
+                                });
+                                websiteGraphData.update((object) => {
+                                    object.nodes = [];
+                                    object.edges = [];
+                                    return object;
+                                });
+                                websiteNodes.update((map) => {
+                                    map.clear();
+                                    return map;
+                                });
+                                $domainGraphData = {
+                                    nodes: [],
+                                    edges: []
+                                }                     
 							}}
 						class="start-crawling-button view-buttons">
 						{#if (waitingForCrawler)}
 							<span class="loading-spinner" />
-						{:else}							
-                            {#if (websiteRecord.lastExecution.status === "running")}
-                                Stop crawling
-                            {:else}
-                                Start crawling
-                            {/if}                        
+						{:else}
+                            {#if (websiteRecord)}
+                                {#if (websiteRecord.lastExecution.status === "running")}
+                                    Stop crawling
+                                {:else}
+                                    Start crawling
+                                {/if}    
+                            {/if}                       
 						{/if}
 						</button>
                     </li>
@@ -98,7 +136,9 @@
 </div>
 
 <style>
+   
     .website-record-li {
+
 		display: flex;
 		flex-direction: row;
 		justify-content: space-around;
@@ -123,14 +163,15 @@
             padding: 10px;    
             border-radius: 5px;               
         }
-    #nodeDetail ul {
-        overflow: scroll;
-        height: 50vh;
-        width: 95%;
-        border: thin solid black;
-        border-radius: 5px;
-        background-color: whitesmoke;
-        list-style-type: none;
+        #nodeDetail ul {
+            overflow: scroll;
+            height: 50vh;
+            width: 95%;
+            border: thin solid black;
+            border-radius: 5px;
+            background-color: whitesmoke;
+            padding: 10px;
+            list-style-type: none;
     }
     
     #nodeDetail li {

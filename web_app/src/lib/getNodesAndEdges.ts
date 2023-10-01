@@ -13,6 +13,7 @@ export default function getNodesAndEdges(executions: Execution[]) {
 	// for domain view will inevitably generate many domain nodes with duplicit id's
 	// create links (edges) between nodes representing the crawling results
 	executions.forEach((sourceNode) => {
+		console.log(sourceNode.title);
 		const websiteNode = {
 			data: {
 				id: sourceNode.url,

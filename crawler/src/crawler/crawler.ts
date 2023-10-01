@@ -123,7 +123,9 @@ export class Crawler {
       `(Crawler ${threadId}) Starting crawling ${this.recordId} record`
     );
     while (this.pagesToCrawl.length !== 0) {
-      await new Promise(resolve => setTimeout(resolve, 5000));
+      if (this.rootExecution)
+        await new Promise(resolve => setTimeout(resolve, 5000));
+      
       if (this.isAborted) break;
       this.currentCrawlingWebPage = this.pagesToCrawl.shift();
       if (this.currentCrawlingWebPage === undefined) continue;

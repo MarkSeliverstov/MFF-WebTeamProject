@@ -26,8 +26,7 @@
 	let currentPage = 1;
 	let pageSize = 10;
 
-	// fetch website records from db COMMENTED TO TRY OUT STORES IN GRAPHDATA
-	//$: ({ websiteRecords, lastExecutionsMap, executions: allExecutionsStore } = data);
+	// fetch data from db (but most of it is stored in svelte stores in graphDataStore.ts)
 	$: ({lastExecutionsMap} = data);
 
 	
@@ -288,7 +287,7 @@
 									method = "start";
 								}
 								await fetch(`http://localhost:5000/api/crawler/${method}/${websiteRecord.id}`);
-								await new Promise(resolve => setTimeout(resolve, 2000))
+								await new Promise(resolve => setTimeout(resolve, 1000))
 								await refreshRecords()
 								CrawlerWaitingId = null
 							}}

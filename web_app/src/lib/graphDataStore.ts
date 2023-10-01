@@ -140,3 +140,5 @@ export const allRecordsStore = writable<WebsiteRecord[]>([]);
 export const lastExecutionsMapStore = writable<Map<string, Execution[]>>();
 
 export const activeSelectionStore = writable<WebsiteRecord[]>();
+
+export const batchIndexStore = writable<number>(0);
