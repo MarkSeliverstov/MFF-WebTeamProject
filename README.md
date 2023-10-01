@@ -1,4 +1,4 @@
-# MFF-Web-TeamProject
+# Web Crawler
 
 `TypeScript` `Svelte` `Svelte-kit` `Node.js` `express.js` `axios` `cherio` `Docker` `cytoscape` `graphql` `MongoDB` `vite`
 
